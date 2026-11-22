@@ -1,0 +1,75 @@
+/* NEON//RIG v1.2.2 - visible motion, no scaling/rotation of text. Pure offline CSS. */
+:root{--rig-neon:#ceff55;--rig-cyan:#63eef0}
+.compare-stage,.advisor-results-section{isolation:isolate;overflow:visible}
+.options-header{margin-top:24px}
+.motion-controls,.advisor-motion-top{display:flex;align-items:center;justify-content:flex-end;gap:13px;flex-wrap:wrap}
+.advisor-motion-top{justify-content:space-between;margin:6px 0 22px}
+.motion-status{margin:8px 0 12px;font:750 11px var(--font,Arial,sans-serif);color:#caff8a;letter-spacing:.15px;line-height:1.6}
+.compare-hint{margin-bottom:24px}
+.compare-stage .options-header,.compare-stage>.compare-hint,.compare-stage>.motion-status{padding-left:12px;padding-right:12px}
+.option-grid,.advisor-results-grid{position:relative;overflow:visible;isolation:isolate;gap:18px;align-items:stretch;padding:46px 18px 30px;margin:-28px -18px 0}
+.advisor-results-grid{padding:36px 12px 25px;margin:-12px -12px 0}
+.option,.advisor-result-card{position:relative;z-index:1;overflow:visible;transform:translate3d(0,0,0)!important;filter:none!important;will-change:auto;
+  transition:transform 570ms cubic-bezier(.18,1.23,.22,1),box-shadow 430ms ease,border-color 260ms ease,opacity 380ms ease,background 350ms ease!important;
+  box-shadow:0 10px 30px #0008,inset 0 1px #ffffff0e}
+.option{--rig-x:0px;--rig-y:-43px}
+.option:nth-child(1){--rig-x:12px}
+.option:nth-child(3){--rig-x:-12px}
+.option::before,.advisor-result-card::before{content:"";position:absolute;inset:-2px;border:1px solid transparent;border-radius:inherit;z-index:0;pointer-events:none;opacity:0;
+  background:linear-gradient(130deg,transparent 0%,#d5ff431c 38%,#63f7ff25 59%,transparent 88%);background-size:240% 100%;transition:opacity .3s ease}
+.option::after,.advisor-result-card::after{content:"";position:absolute;left:12%;right:12%;bottom:-28px;height:27px;z-index:-1;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse,#b4ff5b85,transparent 72%);filter:blur(18px);transition:opacity .4s ease}
+.option > *,.advisor-result-card > *{position:relative;z-index:1}
+.option .sticker{position:absolute;z-index:3}
+.option.is-selected,.advisor-result-card.rig-active{z-index:12!important;opacity:1!important;filter:none!important;
+  transform:translate3d(var(--rig-x,0px),var(--rig-y,-43px),0)!important;border-color:#d7ff5f!important;
+  box-shadow:0 45px 80px #000e,0 0 0 2px #c9ff5d95,0 0 43px #aaff4e78,0 0 95px #b5ff3b30,inset 0 1px #ffffff4a!important;
+  background:linear-gradient(145deg,#263e32,#152432 76%)!important}
+.advisor-result-card.rig-active{--rig-y:-38px}
+.option.is-muted,.advisor-result-card.rig-dimmed{z-index:0!important;transform:translate3d(0,16px,0)!important;opacity:.50!important;filter:none!important;box-shadow:0 6px 15px #0008!important}
+.option.is-selected::before,.option.is-selected::after,.advisor-result-card.rig-active::before,.advisor-result-card.rig-active::after{opacity:1}
+.option.is-selected .compare-cta{border-color:#d4ff67;background:#36532c;color:#efffc2}
+.option.is-selected .option-price,.advisor-result-card.rig-active .advisor-result-price{color:#d9ff85}
+/* A CSS-only fallback remains visible if mouse listeners fail. */
+@media(hover:hover){
+ .option:not(.is-selected):hover,.advisor-result-card:not(.rig-active):hover{z-index:8!important;transform:translate3d(0,-29px,0)!important;border-color:#cbff70!important;box-shadow:0 35px 75px #000b,0 0 0 2px #d2ff6c60,0 0 43px #aaff4e88!important}
+}
+.compare-reveal{transform:translateY(-35px)!important;opacity:0;transition:grid-template-rows 570ms cubic-bezier(.19,.94,.2,1),opacity 430ms ease,transform 570ms cubic-bezier(.19,.94,.2,1)!important}
+.compare-stage.is-open .compare-reveal{transform:translateY(0)!important;opacity:1}
+.compare-reveal-inner,.advisor-compare-body{box-shadow:0 25px 70px #000c,0 0 38px #caff4c18,inset 0 0 40px #c5ff3808}
+.advisor-result-card{cursor:pointer;align-self:stretch}
+.advisor-result-card:focus-visible{outline:2px solid #80e9f1;outline-offset:4px}
+.advisor-compare-button{display:block;width:100%;padding:11px 9px;margin:10px 0 7px;border:1px dashed #84a35a;border-radius:7px;background:#24382b;color:#d0ff89;font:750 11px var(--font,Arial,sans-serif);cursor:pointer}
+.advisor-compare-button:hover,.advisor-compare-button:focus-visible{border-color:#d3ff61;background:#304d32}
+.advisor-compare-panel{display:grid;grid-template-rows:0fr;opacity:0;pointer-events:none;transform:translateY(-32px);transition:grid-template-rows .52s cubic-bezier(.2,.9,.2,1),opacity .4s ease,transform .52s ease;margin:0 3px}
+.advisor-compare-panel.is-open{grid-template-rows:1fr;opacity:1;pointer-events:auto;transform:translateY(0)}
+.advisor-compare-clip{min-height:0;overflow:hidden}
+.advisor-compare-body{position:relative;border:1px solid #85af5c;border-top:3px solid #cbff58;border-radius:13px;background:linear-gradient(115deg,#1d302f,#111d29 64%);padding:25px;margin:4px 0 12px;overflow:hidden}
+.advisor-compare-body::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;background:linear-gradient(#9cff9239 1px,transparent 1px),linear-gradient(90deg,#9cff9239 1px,transparent 1px);background-size:26px 26px}
+.advisor-compare-body>*{position:relative;z-index:1}
+@media(max-width:740px){
+ .option-grid,.advisor-results-grid{padding:25px 7px 22px;margin:-10px -7px 0;gap:14px}
+ .option.is-selected,.advisor-result-card.rig-active{--rig-x:0px;--rig-y:-18px}
+ .option.is-muted,.advisor-result-card.rig-dimmed{transform:translateY(5px)!important;opacity:.75!important}
+ .options-header{align-items:flex-start}
+ .motion-controls{justify-content:flex-start}
+ .advisor-motion-top{align-items:flex-start}
+ .advisor-compare-body{padding:15px}
+ .compare-reveal{transform:translateY(-18px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ /* Preserve the open/selected visual state and explanation, but do not animate movement. */
+ html:not(.rig-force-motion) .option,html:not(.rig-force-motion) .advisor-result-card,html:not(.rig-force-motion) .option::before,html:not(.rig-force-motion) .advisor-result-card::before,html:not(.rig-force-motion) .option::after,html:not(.rig-force-motion) .advisor-result-card::after,html:not(.rig-force-motion) .compare-reveal,html:not(.rig-force-motion) .advisor-compare-panel{transition:none!important;animation:none!important}
+ html:not(.rig-force-motion) .option.is-selected,html:not(.rig-force-motion) .advisor-result-card.rig-active,html:not(.rig-force-motion) .option.is-muted,html:not(.rig-force-motion) .advisor-result-card.rig-dimmed{transform:none!important}
+ html:not(.rig-force-motion) .compare-reveal,html:not(.rig-force-motion) .compare-stage.is-open .compare-reveal,html:not(.rig-force-motion) .advisor-compare-panel{transform:none!important}
+}
+
+/* Bỏ hoàn toàn các dải sáng quét lặp lại.
+   Keep card lift, static glow, dimming and the analysis reveal animation.
+   Overrides the prior ::before reflection and reveal-panel ::after scan. */
+.option::before,
+.advisor-result-card::before,
+.compare-reveal-inner::after {
+  content: none !important;
+  animation: none !important;
+}
