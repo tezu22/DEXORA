@@ -18,11 +18,14 @@ from urllib.parse import urlparse
 from urllib.robotparser import RobotFileParser
 import requests
 from bs4 import BeautifulSoup
+from price_variants import classify_conditionals, is_conditional_label
+from price_api import price_from_api
+import os
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES_PATH = ROOT / "data" / "price_sources.json"
 PRICES_PATH = ROOT / "data" / "prices.json"
-UA = "NEON-RIG-PriceMonitor/0.8 (+public-product-prices; github-actions)"
+UA = "DEXORA-PriceMonitor/1.0 (+public-product-prices; github-actions)"
 MAX_QUOTE_AGE = timedelta(days=7)
 PRICE_MIN, PRICE_MAX = 100_000, 250_000_000
 OLD_CUES = ("old", "original", "regular", "compare", "list-price", "price-before", "strike", "was-price", "giagoc", "gia-goc", "giá-gốc", "niemyet", "niêm-yết")
@@ -132,6 +135,8 @@ def extract_price(html: str) -> dict | None:
     old_candidates: list[int] = []
 
     for tag in soup.find_all(["meta", "ins", "del", "s", "strike", "span", "div", "strong", "b", "p"]):
+        if is_conditional_label(tag):
+            continue
         if tag.name == "meta":
             prop = (tag.get("property", "") + " " + tag.get("itemprop", "") + " " + tag.get("name", "")).lower()
             if any(t in prop for t in ["product:price:amount", "og:price:amount", "price"]):
@@ -165,6 +170,7 @@ def extract_price(html: str) -> dict | None:
     _, selling_price, source = sorted(candidates, key=lambda t: -t[0])[0]
     original = min((p for p in old_candidates if p > selling_price), default=None)
     return {
+        "kind": "sale" if bool(original) else "retail",
         "current_price": selling_price,
         "original_price": original,
         "is_discounted": bool(original),
@@ -177,9 +183,25 @@ def verify_product_title(html: str, required_terms: list[str]) -> bool:
     soup = BeautifulSoup(html, "html.parser")
     title = soup.find("h1")
     meta = soup.find("meta", property="og:title")
-    line = " ".join([title.get_text(" ", strip=True) if title else "", meta.get("content", "") if meta else ""])
-    line = re.sub(r"[^a-z0-9]", "", line.lower())
-    return bool(line) and all(re.sub(r"[^a-z0-9]", "", term.lower()) in line for term in required_terms)
+    visible = " ".join([title.get_text(" ", strip=True) if title else "", meta.get("content", "") if meta else ""])
+    line = re.sub(r"[^a-z0-9]", "", visible.lower())
+    if not line:
+        return False
+    # Distinguish e.g. i5-14600K vs i5-14600KF, not substring matches.
+    intel_codes = set(re.findall(r"\bi[3579][\s-]*\d{5}(?:kf|ks|f|k)?\b", visible.lower()))
+    intel_codes = {re.sub(r"^(i[3579])[\s-]*", r"\1-", code) for code in intel_codes}
+    for term in required_terms:
+        token = re.sub(r"\s+", "", term.lower())
+        if re.fullmatch(r"i[3579]-\d{5}(?:kf|ks|f|k)?", token):
+            if token not in intel_codes:
+                return False
+        elif re.fullmatch(r"\d{5}(?:kf|ks|f|k)?", token):
+            variants = {re.sub(r"^i[3579]-", "", code) for code in intel_codes}
+            if token not in variants:
+                return False
+        elif re.sub(r"[^a-z0-9]", "", token) not in line:
+            return False
+    return True
 
 
 def load_json(path: Path, default):
@@ -259,22 +281,34 @@ def update_sources(sources: list[dict], prior: dict, fetcher=None) -> tuple[dict
                 if not robots_allowed(session, url, robot_cache):
                     logs.append(f"SKIP {key}: robots.txt không cho phép/chưa xác minh")
                     continue
-                res = session.get(url, timeout=18)
+                headers={}
+                if src.get('source_type')=='official_api_json' and src.get('auth_env'):
+                    secret=os.environ.get(src['auth_env'])
+                    if not secret:raise ValueError('Thiếu API key được cấp quyền')
+                    headers['Authorization']='Bearer '+secret
+                res = session.get(url, timeout=18, headers=headers)
                 res.raise_for_status()
                 if urlparse(res.url).netloc.lower() != urlparse(url).netloc.lower():
                     raise ValueError("Trang chuyển sang domain khác")
                 html = res.text
             else:
                 html = fetcher(url)
-            if not verify_product_title(html, src["required_terms"]):
-                logs.append(f"SKIP {key}: không xác minh được đúng sản phẩm")
-                continue
-            found = extract_price(html)
+            if src.get('source_type')=='official_api_json':
+                found=price_from_api(html,src,parse_vnd,verify_product_title)
+                extras=[]
+            else:
+                if not verify_product_title(html, src["required_terms"]):
+                    logs.append(f"SKIP {key}: không xác minh được đúng sản phẩm")
+                    continue
+                found=extract_price(html)
+                extras=classify_conditionals(html)
             if not found:
                 logs.append(f"SKIP {key}: không tìm thấy giá bán hiện hành")
                 continue
             record = {
                 "store_id": store, "url": url, "verified_at": stamp,
+                "price_kind": found.get("kind", "retail"),
+                "conditional_offers": extras,
                 "current_price": found["current_price"],
                 "original_price": found["original_price"],
                 "discount_percent": found["discount_percent"],
@@ -296,7 +330,7 @@ def update_sources(sources: list[dict], prior: dict, fetcher=None) -> tuple[dict
                 "last_verified": max(q["verified_at"] for q in product_quotes),
                 "quotes": sorted(product_quotes, key=lambda q: (q["store_id"],q["url"])),
             }
-    result = {"schema_version": 1, "currency": "VND", "generated_at": stamp if successful else prior.get("generated_at"), "entries": entries}
+    result = {"schema_version": 2, "currency": "VND", "generated_at": stamp if successful else prior.get("generated_at"), "entries": entries}
     return result, logs
 
 

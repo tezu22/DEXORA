@@ -1,184 +1,111 @@
-<!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#070d14" />
-  <meta name="description" content="DEXORA — Tư vấn PC Desktop và Laptop theo nhu cầu, ngân sách và phong cách. Tự build, phân tích và so sánh có giải thích." />
-  <link rel="icon" type="image/svg+xml" href="./assets/brand/dexora-mark.svg" />
-  <title>DEXORA — Tư vấn PC & Laptop thông minh</title>
-  <!-- Optional online font: falls back to system fonts when offline -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./assets/css/layout.css?v=140" />
-  <link rel="stylesheet" href="./assets/css/comparison.css?v=140" />
-  <link rel="stylesheet" href="./assets/css/polish.css?v=140" />
-  <link rel="stylesheet" href="./assets/css/comparison-motion.css?v=140" />
-<link rel="stylesheet" href="./assets/css/advisor-reasons.css?v=140" />
-  <link rel="stylesheet" href="./assets/css/advisor.css?v=140" />
-  <link rel="stylesheet" href="./assets/css/home.css?v=140" />
-  <link rel="stylesheet" href="./assets/css/dexora-home.css?v=140" />
-</head>
-<body data-view="home">
-<section id="landing" class="landing dx-home" aria-label="Trang chủ DEXORA">
-  <div class="dx-shell">
-    <header class="dx-header">
-      <a class="dx-brand" href="#" data-return-home aria-label="DEXORA — về trang chủ">
-        <img src="./assets/brand/dexora-mark.svg" alt="" width="39" height="39">
-        <span>DE<span class="dx-brand-accent">X</span>ORA</span>
-      </a>
-      <nav class="dx-nav" aria-label="Điều hướng trang chủ">
-        <a class="is-current" href="#landing">Trang chủ</a>
-        <button type="button" data-home-open="build">PC Desktop</button>
-        <button type="button" data-home-open="laptop">Laptop</button>
-        <a href="#dx-features">Tính năng</a>
-        <a href="#dx-why">Về DEXORA</a>
-      </nav>
-      <button type="button" class="dx-nav-cta" data-home-open="advisor">Bắt đầu tư vấn <span aria-hidden="true">↗</span></button>
-    </header>
+<!DOCTYPE html>
 
-    <main id="dx-main">
-      <section class="dx-hero" aria-labelledby="dxHeroTitle">
-        <div class="dx-hero-copy">
-          <div class="dx-kicker"><span class="dx-kicker-line"></span> NỀN TẢNG TƯ VẤN PC & LAPTOP</div>
-          <h1 id="dxHeroTitle">Chọn đúng máy.<br><span>Hiểu rõ lý do.</span></h1>
-          <p>Khám phá cấu hình phù hợp với <strong>nhu cầu, ngân sách và phong cách</strong> của bạn. Không chỉ đề xuất thiết bị — DEXORA còn giải thích vì sao nên chọn.</p>
-          <div class="dx-hero-actions">
-            <button type="button" class="dx-button dx-button-primary" data-home-open="build">Khám phá PC Desktop <span aria-hidden="true">↗</span></button>
-            <button type="button" class="dx-button dx-button-ghost" data-home-open="laptop">Khám phá Laptop <span aria-hidden="true">↗</span></button>
-          </div>
-          <div class="dx-hero-notes"><span><i aria-hidden="true"></i> Lọc linh kiện tương thích</span><span><i aria-hidden="true"></i> Tư vấn có giải thích</span><span><i aria-hidden="true"></i> Giá tham khảo bằng VNĐ</span></div>
-        </div>
-        <div class="dx-hero-visual">
-          <div class="dx-glow-orb" aria-hidden="true"></div>
-          <img class="dx-device-art" src="./assets/brand/dexora-devices.svg" alt="Minh họa máy tính để bàn và laptop theo phong cách DEXORA" width="720" height="510">
-          <div class="dx-float-label dx-float-label-pc"><span class="dx-float-indicator"></span><div><strong>DESKTOP SYSTEM</strong><small>Build / Optimize</small></div></div>
-          <div class="dx-float-label dx-float-label-laptop"><span class="dx-float-indicator cyan"></span><div><strong>LAPTOP SYSTEM</strong><small>Find / Compare</small></div></div>
-          <div class="dx-hero-visual-foot"><span>DEXORA / HARDWARE ADVISOR</span><span>01 — 02</span></div>
-        </div>
-      </section>
-
-      <div class="dx-trust-strip" aria-label="Những tính năng nổi bật">
-        <div><span class="dx-trust-icon">01</span><strong>Hai hệ thống riêng</strong><small>PC Desktop & Laptop</small></div>
-        <div><span class="dx-trust-icon">03</span><strong>Ba hướng lựa chọn</strong><small>Tiết kiệm · Cân bằng · Cao cấp</small></div>
-        <div><span class="dx-trust-icon">✓</span><strong>Tư vấn có cơ sở</strong><small>Giải thích và nêu điểm đánh đổi</small></div>
-      </div>
-
-      <section class="dx-section dx-gateways" id="dx-systems" aria-labelledby="dxSystemsHeading">
-        <div class="dx-section-heading"><div><span class="dx-overline">01 / CHỌN THIẾT BỊ</span><h2 id="dxSystemsHeading">Hai hệ thống. <em>Một lựa chọn đúng.</em></h2></div><p>Mỗi loại thiết bị có quy trình tư vấn riêng, được thiết kế theo đặc điểm sử dụng thực tế.</p></div>
-        <div class="dx-gateway-grid">
-          <article class="dx-gateway dx-pc">
-            <div class="dx-gateway-head"><span class="dx-pill dx-pill-lime">HỆ THỐNG 01</span><span class="dx-gateway-number">01 / 02</span></div>
-            <div class="dx-gateway-art dx-pc-art" aria-hidden="true">
-              <div class="dx-mini-pc"><div class="dx-mini-pc-glass"><span></span><span></span><span></span></div><div class="dx-mini-pc-vents"></div></div>
-              <div class="dx-art-caption">CUSTOM HARDWARE / DESKTOP</div>
-            </div>
-            <div class="dx-gateway-copy"><span class="dx-small-label">TÙY BIẾN LINH KIỆN · TỐI ƯU HIỆU NĂNG</span><h3>PC <span>Desktop</span></h3><p>Tự chọn linh kiện, lọc tương thích theo CPU và mainboard, đánh giá cấu hình hoặc nhận ba phương án tư vấn theo nhu cầu.</p>
-              <div class="dx-chip-row"><span>Tự Build</span><span>Tư vấn thông minh</span><span>So sánh cấu hình</span></div>
-              <div class="dx-gateway-actions"><button type="button" class="dx-button dx-button-primary" data-home-open="build">Tự build PC <span aria-hidden="true">↗</span></button><button type="button" class="dx-text-button" data-home-open="advisor">Nhờ tư vấn <span aria-hidden="true">→</span></button></div>
-            </div>
-          </article>
-          <article class="dx-gateway dx-lt">
-            <div class="dx-gateway-head"><span class="dx-pill dx-pill-cyan">HỆ THỐNG 02</span><span class="dx-gateway-number">02 / 02</span></div>
-            <div class="dx-gateway-art dx-lt-art" aria-hidden="true">
-              <div class="dx-mini-laptop"><div class="dx-mini-laptop-screen"><img src="./assets/brand/dexora-mark.svg" alt="" width="65" height="65"></div><div class="dx-mini-laptop-keyboard"></div></div>
-              <div class="dx-art-caption">PORTABLE WORKSTATION / LAPTOP</div>
-            </div>
-            <div class="dx-gateway-copy"><span class="dx-small-label">CHỌN ĐÚNG MÁY · ĐÚNG MỤC ĐÍCH</span><h3>Lap<span>top</span></h3><p>Khám phá hướng tư vấn theo hiệu năng, màn hình, pin và khả năng nâng cấp. Kho laptop thực tế đang được hoàn thiện.</p>
-              <div class="dx-chip-row"><span>Gaming & Công việc</span><span>Màn hình & Pin</span><span>Nâng cấp</span></div>
-              <div class="dx-gateway-actions"><button type="button" class="dx-button dx-button-cyan" data-home-open="laptop">Khám phá Laptop <span aria-hidden="true">↗</span></button><span class="dx-preview-hint">Bản xem trước</span></div>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="dx-section dx-features" id="dx-features" aria-labelledby="dxFeaturesHeading">
-        <div class="dx-section-heading"><div><span class="dx-overline">02 / CÔNG CỤ</span><h2 id="dxFeaturesHeading">Từ câu hỏi đến <em>quyết định.</em></h2></div><p>Những công cụ hỗ trợ bạn lựa chọn thiết bị có căn cứ, thay vì chỉ nhìn vào thông số quảng cáo.</p></div>
-        <div class="dx-features-grid">
-          <article class="dx-feature"><div class="dx-feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h10M4 19h16M17 9l3 3-3 3"/></svg></div><span>01 / NEEDS</span><h3>Hiểu nhu cầu</h3><p>Chọn nhiều tác vụ, game và phần mềm. Câu hỏi phụ thay đổi theo nhu cầu đã chọn.</p></article>
-          <article class="dx-feature"><div class="dx-feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 5-5 4 3 7-9M16 6h4v4"/></svg></div><span>02 / ADVISOR</span><h3>Ba hướng đề xuất</h3><p>Tiết kiệm, cân bằng và cao cấp; nêu rõ lý do chọn cùng các điểm cần đánh đổi.</p></article>
-          <article class="dx-feature"><div class="dx-feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M9 9h6M9 13h6M9 17h3"/></svg></div><span>03 / COMPATIBLE</span><h3>Kiểm tra tương thích</h3><p>Lọc CPU, mainboard, RAM và các linh kiện theo những thông số đã có trong kho dữ liệu.</p></article>
-          <article class="dx-feature"><div class="dx-feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h11v11M19 5l-8 8M4 9v11h11"/></svg></div><span>04 / COMPARE</span><h3>So sánh rõ ràng</h3><p>Đối chiếu cấu hình theo giá tham khảo, mục đích sử dụng và ưu nhược điểm.</p></article>
-        </div>
-      </section>
-
-      <section class="dx-section dx-why" id="dx-why" aria-labelledby="dxWhyHeading">
-        <div class="dx-why-copy"><span class="dx-overline">03 / LÝ DO CHỌN DEXORA</span><h2 id="dxWhyHeading">Không chỉ nói<br><em>“nên mua gì”.</em></h2><p>Một đề xuất tốt phải giúp bạn hiểu <strong>vì sao</strong> một linh kiện được chọn, điểm nào đáp ứng nhu cầu và điểm nào chưa đủ cơ sở kết luận.</p><ul><li><b>Giải thích dễ hiểu</b><span>Ưu tiên theo nhu cầu thực tế của từng người.</span></li><li><b>Minh bạch dữ liệu</b><span>Giá tham khảo, cảnh báo và giới hạn đánh giá được ghi rõ.</span></li><li><b>Giữ quyền quyết định</b><span>Bạn có thể tự build hoặc dùng gợi ý làm điểm khởi đầu.</span></li></ul></div>
-        <div class="dx-preview-panel" aria-label="Mô phỏng cách hiển thị lời tư vấn">
-          <div class="dx-preview-top"><span><i></i> DEXORA / SMART ADVISOR</span><span class="dx-demo-tag">MINH HỌA</span></div>
-          <h3>Một ngân sách.<br>Ba cách tối ưu.</h3>
-          <div class="dx-preview-chips"><span>Game 2K</span><span>Livestream</span><span>Revit</span></div>
-          <div class="dx-option-switch" role="group" aria-label="Xem trước ba phương án tư vấn">
-            <button type="button" data-dx-preview="save" aria-pressed="false"><small>01</small> Tiết kiệm</button>
-            <button type="button" data-dx-preview="balanced" class="is-active" aria-pressed="true"><small>02</small> Cân bằng</button>
-            <button type="button" data-dx-preview="high" aria-pressed="false"><small>03</small> Cao cấp</button>
-          </div>
-          <div class="dx-preview-explanation" aria-live="polite"><div class="dx-explanation-icon">✦</div><div><strong id="dxPreviewTitle">Vì sao chọn phương án cân bằng?</strong><p id="dxPreviewText">Phân bổ ngân sách giữa GPU dành cho game 2K, CPU đủ đáp ứng đa nhiệm và RAM phù hợp để vừa chơi vừa làm việc. Cần kiểm tra benchmark cụ thể trước khi kết luận FPS.</p></div></div>
-          <div class="dx-preview-bottom"><span>Ví dụ cách giải thích — không phải đề xuất sản phẩm thực tế</span><span>02 / 03</span></div>
-        </div>
-      </section>
-
-      <section class="dx-bottom-cta" aria-labelledby="dxStartHeading"><div><span class="dx-overline">BẮT ĐẦU VỚI DEXORA</span><h2 id="dxStartHeading">Bộ máy phù hợp bắt đầu từ<br><em>nhu cầu của bạn.</em></h2></div><div class="dx-bottom-actions"><button class="dx-button dx-button-primary" type="button" data-home-open="advisor">Tư vấn cấu hình PC <span aria-hidden="true">↗</span></button><button class="dx-button dx-button-ghost" type="button" data-home-open="laptop">Khám phá Laptop <span aria-hidden="true">↗</span></button></div></section>
-    </main>
-    <footer class="dx-footer"><div class="dx-footer-brand"><img src="./assets/brand/dexora-mark.svg" alt="" width="30" height="30"><strong>DEXORA</strong><span>Smart PC & Laptop Advisor</span></div><p>Giá, hiệu năng và khả năng tương thích hiện mang tính tham khảo. Một số chức năng đang trong giai đoạn phát triển.</p><span>© 2026 DEXORA · DEMO</span></footer>
-  </div>
-</section>
-
-<section id="laptopPortal" class="laptop-portal" aria-labelledby="laptopPortalTitle">
-  <div class="portal-wrap">
-    <header class="portal-nav"><a href="#" class="landing-brand" data-return-home><img class="dx-portal-logo" src="./assets/brand/dexora-mark.svg" alt="" width="39" height="39"><span>DE<span class="brand-slash">X</span>ORA</span></a><button type="button" class="portal-back" data-return-home>← TRỞ VỀ TRANG CHỦ</button></header>
-    <div class="portal-kicker"><span class="signal-pulse"></span> SYSTEM 02 / LAPTOP LAB <span class="portal-beta">BẢN XEM TRƯỚC</span></div>
-    <div class="portal-hero"><div><h1 id="laptopPortalTitle">SỨC MẠNH<br><span>TRONG TẦM TAY.</span></h1><p>Hệ tư vấn laptop đang được xây dựng riêng. Bạn có thể thử chọn nhu cầu để xem DEXORA sẽ đánh giá những yếu tố nào trước khi có kho máy thực tế.</p><div class="portal-info">Dữ liệu laptop, mã cấu hình và giá chưa được tích hợp — chưa có đề xuất sản phẩm cụ thể.</div></div><div class="portal-visual" aria-hidden="true"><div class="portal-monitor"><span>DX</span></div><div class="portal-base"></div></div></div>
-    <div class="portal-section-title"><span>QUICK PROFILE</span><h2>Thử tạo hồ sơ tư vấn laptop</h2><p>Bản tương tác để xem luồng câu hỏi, chưa phải thuật toán xếp hạng sản phẩm.</p></div>
-    <form id="laptopQuickForm" class="laptop-profile">
-      <label class="laptop-field">Ngân sách dự kiến (VNĐ)<input id="laptopBudget" type="number" min="3000000" max="200000000" step="1000000" value="30000000" required></label>
-      <fieldset class="laptop-field"><legend>Nhu cầu chính</legend><div class="laptop-radio-grid"><label><input type="radio" name="laptopUse" value="gaming" checked><span>Gaming</span></label><label><input type="radio" name="laptopUse" value="design"><span>Đồ họa / Kỹ thuật</span></label><label><input type="radio" name="laptopUse" value="study"><span>Học tập / Văn phòng</span></label><label><input type="radio" name="laptopUse" value="coding"><span>Lập trình</span></label></div></fieldset>
-      <fieldset class="laptop-field"><legend>Ưu tiên thêm (chọn nhiều)</legend><div class="laptop-check-grid"><label><input type="checkbox" name="laptopPriority" value="pin"><span>Pin lâu</span></label><label><input type="checkbox" name="laptopPriority" value="light"><span>Máy nhẹ</span></label><label><input type="checkbox" name="laptopPriority" value="screen"><span>Màn đẹp</span></label><label><input type="checkbox" name="laptopPriority" value="upgrade"><span>Dễ nâng cấp</span></label></div></fieldset>
-      <button class="home-action home-action-cyan profile-submit" type="submit">XEM HƯỚNG TƯ VẤN <span>↗</span></button>
-    </form>
-    <div id="laptopProfileResult" class="profile-result" role="status" aria-live="polite" hidden></div>
-    <div class="portal-bottom"><button type="button" class="portal-back" data-return-home>← VỀ HAI LỰA CHỌN</button><span>LAPTOP · BẢN XEM TRƯỚC</span></div>
-  </div>
-</section>
-
-<div class="app" id="pcWorkspace">
-  <aside class="side">
-    <a href="#" class="logo" id="homeLink"><img class="dx-sidebar-logo" src="./assets/brand/dexora-mark.svg" alt="" width="38" height="38"><span>DE<b>X</b>ORA</span></a>
-    <div class="version">BUILD LAB / 1.4.0</div>
-    <button class="sidebar-home" id="sidebarHome" type="button">← TRANG CHỦ</button>
-    <div class="navtitle">WORKSPACE</div>
-    <nav class="nav" id="nav">
-      <button data-page="build" class="active"><span class="nav-symbol">▣</span><span class="nav-text">Tự build PC</span></button>
-      <button data-page="advisor"><span class="nav-symbol">✳</span><span class="nav-text">Tư vấn cấu hình</span></button>
-      <button data-page="catalog"><span class="nav-symbol">▦</span><span class="nav-text">Kho linh kiện</span></button>
-      <button data-page="compare"><span class="nav-symbol">⇄</span><span class="nav-text">So sánh</span></button>
-      <button data-page="stores"><span class="nav-symbol">⌖</span><span class="nav-text">Khu vực & cửa hàng</span></button>
-    </nav>
-    <div class="side-bottom"><span class="tag"><span class="dot"></span> SẴN SÀNG SỬ DỤNG</span><p>ENGINE v1.4.0<br>Chạy hoàn toàn trên trình duyệt. Chưa cần máy chủ.</p></div>
-  </aside>
-  <div class="main">
-    <header class="topbar"><div class="crumb">DEXORA <span>/</span><b id="breadcrumb">TỰ BUILD</b></div><div class="topright"><div class="outline-pill">◉ BẢN DÙNG THỬ</div><div class="avatar">D</div></div></header>
-    <div class="content">
-      <section class="hero">
-        <div class="hero-copy"><div class="eyebrow"><span class="dot"></span> KHO LINH KIỆN // TỰ LẮP PC</div><h1>TỰ CHỌN LINH KIỆN.<br><span>TỐI ƯU THEO CÁCH BẠN.</span></h1><p>Bắt đầu từ CPU, chọn mainboard và RAM tương thích. Các lựa chọn tiếp theo được kiểm tra theo thông số có trong dữ liệu; cửa hàng chỉ để tham khảo địa điểm và link sản phẩm.</p><div class="hero-actions"><button class="btn primary" data-go="build">BẮT ĐẦU BUILD ↗</button><button class="btn ghost" data-go="advisor">TƯ VẤN THEO NHU CẦU →</button></div></div>
-        <div class="tower-scene" aria-hidden="true"><div class="t-line"></div><div class="tower"><div class="fan a"></div><div class="fan b"></div><div class="tower-label">DEXORA // 01</div></div></div>
-      </section>
-      <div class="metrics" id="metrics"></div>
-      <div class="region-toolbar" id="regionToolbar"></div>
-      <div class="price-sync" id="priceSync" role="status" aria-live="polite"><span class="price-sync-dot"></span><span>DỮ LIỆU GIÁ // Đang dùng giá tham khảo minh họa; sẽ tải dữ liệu cửa hàng khi có báo giá hợp lệ.</span></div>
-      <div id="pageView"></div>
-      <footer><span>© 2026 DEXORA — BẢN DÙNG THỬ</span><span>GIÁ THAM KHẢO · KHÔNG PHẢI BÁO GIÁ CHÍNH THỨC</span></footer>
-    </div>
-  </div>
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#070d14" name="theme-color"/>
+<meta content="DEXORA — Tư vấn PC Desktop và Laptop theo nhu cầu, ngân sách và phong cách. Tự build, phân tích và so sánh có giải thích." name="description"/>
+<link href="./assets/brand/dexora-mark.svg" rel="icon" type="image/svg+xml"/>
+<title>DEXORA — Trang chủ</title>
+<!-- Optional online font: falls back to system fonts when offline -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="./assets/css/layout.css?v=140" rel="stylesheet"/>
+<link href="./assets/css/comparison.css?v=140" rel="stylesheet"/>
+<link href="./assets/css/polish.css?v=140" rel="stylesheet"/>
+<link href="./assets/css/comparison-motion.css?v=140" rel="stylesheet"/>
+<link href="./assets/css/advisor-reasons.css?v=140" rel="stylesheet"/>
+<link href="./assets/css/advisor.css?v=140" rel="stylesheet"/>
+<link href="./assets/css/home.css?v=140" rel="stylesheet"/>
+<link href="./assets/css/dexora-home.css?v=140" rel="stylesheet"/>
+<link href="./assets/css/dexora-upgrade.css?v=200" rel="stylesheet"/><meta content="dark" name="color-scheme"/><link href="https://tezu22.github.io/DEXORA/" rel="canonical"/><meta content="DEXORA — Trang chủ" property="og:title"/><meta content="website" property="og:type"/></head><body data-view="home"><section aria-label="Trang chủ DEXORA" class="landing dx-home" id="landing">
+<div class="dx-shell">
+<header class="dx-header">
+<div aria-label="DEXORA — về trang chủ" class="dx-brand">
+<img alt="" height="39" src="./assets/brand/dexora-mark.svg" width="39"/>
+<span>DE<span class="dx-brand-accent">X</span>ORA</span>
 </div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script defer src="./data/catalog.js?v=140"></script>
-<script defer src="./assets/js/seed-data.js?v=140"></script>
-<script defer src="./assets/js/advisor-data.js?v=140"></script>
-<script defer src="./assets/js/advisor-explain.js?v=140"></script>
-<script defer src="./assets/js/app.js?v=140"></script>
-<script defer src="./assets/js/home.js?v=140"></script>
-<script defer src="./assets/js/dexora-preview.js?v=140"></script>
-</body>
-</html>
+<nav aria-label="Điều hướng trang chủ" class="dx-nav"><a class="is-current" href="#landing">Trang chủ</a><a href="#dx-features">Tính năng</a><a href="#dx-why">Về DEXORA</a></nav>
+<button class="dx-nav-cta" data-home-open="advisor" type="button">Bắt đầu tư vấn <span aria-hidden="true">↗</span></button>
+</header>
+<main id="dx-main">
+<section aria-labelledby="dxHeroTitle" class="dx-hero">
+<div class="dx-hero-copy">
+<div class="dx-kicker"><span class="dx-kicker-line"></span> NỀN TẢNG TƯ VẤN PC &amp; LAPTOP</div>
+<h1 id="dxHeroTitle">Chọn đúng máy.<br/><span>Hiểu rõ lý do.</span></h1>
+<p>Khám phá cấu hình phù hợp với <strong>nhu cầu, ngân sách và phong cách</strong> của bạn. Không chỉ đề xuất thiết bị — DEXORA còn giải thích vì sao nên chọn.</p>
+<div class="dx-hero-actions">
+<button class="dx-button dx-button-primary" data-home-open="build" type="button">Khám phá PC Desktop <span aria-hidden="true">↗</span></button>
+<button class="dx-button dx-button-ghost" data-home-open="laptop" type="button">Khám phá Laptop <span aria-hidden="true">↗</span></button>
+</div>
+<div class="dx-hero-notes"><span><i aria-hidden="true"></i> Lọc linh kiện tương thích</span><span><i aria-hidden="true"></i> Tư vấn có giải thích</span><span><i aria-hidden="true"></i> Giá tham khảo bằng VNĐ</span></div>
+</div>
+<div class="dx-hero-visual">
+<div aria-hidden="true" class="dx-glow-orb"></div>
+<img alt="Minh họa máy tính để bàn và laptop theo phong cách DEXORA" class="dx-device-art" height="510" src="./assets/brand/dexora-devices.svg" width="720"/>
+<div class="dx-float-label dx-float-label-pc"><span class="dx-float-indicator"></span><div><strong>DESKTOP SYSTEM</strong><small>Build / Optimize</small></div></div>
+<div class="dx-float-label dx-float-label-laptop"><span class="dx-float-indicator cyan"></span><div><strong>LAPTOP SYSTEM</strong><small>Find / Compare</small></div></div>
+<div class="dx-hero-visual-foot"><span>DEXORA / HARDWARE ADVISOR</span><span>01 — 02</span></div>
+</div>
+</section>
+<div aria-label="Những tính năng nổi bật" class="dx-trust-strip">
+<div><span class="dx-trust-icon">01</span><strong>Hai hệ thống riêng</strong><small>PC Desktop &amp; Laptop</small></div>
+<div><span class="dx-trust-icon">03</span><strong>Ba hướng lựa chọn</strong><small>Tiết kiệm · Cân bằng · Cao cấp</small></div>
+<div><span class="dx-trust-icon">✓</span><strong>Tư vấn có cơ sở</strong><small>Giải thích và nêu điểm đánh đổi</small></div>
+</div>
+<section aria-labelledby="dxSystemsHeading" class="dx-section dx-gateways" id="dx-systems">
+<div class="dx-section-heading"><div><span class="dx-overline">01 / CHỌN THIẾT BỊ</span><h2 id="dxSystemsHeading">Chọn đúng máy. <em>Hiểu rõ lý do.</em></h2></div><p>Mỗi loại thiết bị có quy trình tư vấn riêng, được thiết kế theo đặc điểm sử dụng thực tế.</p></div>
+<div class="dx-gateway-grid">
+<article class="dx-gateway dx-pc">
+<div class="dx-gateway-head"><span class="dx-pill dx-pill-lime">HỆ THỐNG 01</span><span class="dx-gateway-number">01 / 02</span></div>
+<div aria-hidden="true" class="dx-gateway-art dx-pc-art">
+<div class="dx-mini-pc"><div class="dx-mini-pc-glass"><span></span><span></span><span></span></div><div class="dx-mini-pc-vents"></div></div>
+<div class="dx-art-caption">CUSTOM HARDWARE / DESKTOP</div>
+</div>
+<div class="dx-gateway-copy"><span class="dx-small-label">TÙY BIẾN LINH KIỆN · TỐI ƯU HIỆU NĂNG</span><h3>PC <span>Desktop</span></h3><p>Tự chọn linh kiện, lọc tương thích theo CPU và mainboard, đánh giá cấu hình hoặc nhận ba phương án tư vấn theo nhu cầu.</p>
+<div class="dx-chip-row"><span>Tự Build</span><span>Tư vấn thông minh</span><span>So sánh cấu hình</span></div>
+<div class="dx-gateway-actions"><button class="dx-button dx-button-primary" data-home-open="build" type="button">Tự build PC <span aria-hidden="true">↗</span></button><button class="dx-text-button" data-home-open="advisor" type="button">Nhờ tư vấn <span aria-hidden="true">→</span></button></div>
+</div>
+</article>
+<article class="dx-gateway dx-lt">
+<div class="dx-gateway-head"><span class="dx-pill dx-pill-cyan">HỆ THỐNG 02</span><span class="dx-gateway-number">02 / 02</span></div>
+<div aria-hidden="true" class="dx-gateway-art dx-lt-art">
+<div class="dx-mini-laptop"><div class="dx-mini-laptop-screen"><img alt="" height="65" src="./assets/brand/dexora-mark-purple.svg" width="65"/></div><div class="dx-mini-laptop-keyboard"></div></div>
+<div class="dx-art-caption">PORTABLE WORKSTATION / LAPTOP</div>
+</div>
+<div class="dx-gateway-copy"><span class="dx-small-label">CHỌN ĐÚNG MÁY · ĐÚNG MỤC ĐÍCH</span><h3>Lap<span>top</span></h3><p>Khám phá hướng tư vấn theo hiệu năng, màn hình, pin và khả năng nâng cấp. Kho laptop thực tế đang được hoàn thiện.</p>
+<div class="dx-chip-row"><span>Gaming &amp; Công việc</span><span>Màn hình &amp; Pin</span><span>Nâng cấp</span></div>
+<div class="dx-gateway-actions"><button class="dx-button dx-button-cyan" data-home-open="laptop" type="button">Khám phá Laptop <span aria-hidden="true">↗</span></button><span class="dx-preview-hint">Bản xem trước</span></div>
+</div>
+</article>
+</div>
+</section>
+<section aria-labelledby="dxFeaturesHeading" class="dx-section dx-features" id="dx-features">
+<div class="dx-section-heading"><div><span class="dx-overline">02 / TÍNH NĂNG</span><h2 id="dxFeaturesHeading">Từ câu hỏi đến <em>quyết định.</em></h2></div><p>Những công cụ hỗ trợ bạn lựa chọn thiết bị có căn cứ, thay vì chỉ nhìn vào thông số quảng cáo.</p></div>
+<div class="dx-features-grid">
+<article class="dx-feature"><div class="dx-feature-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 5h16M4 12h10M4 19h16M17 9l3 3-3 3"></path></svg></div><span>01 / NEEDS</span><h3>Hiểu nhu cầu</h3><p>Chọn nhiều tác vụ, game và phần mềm. Câu hỏi phụ thay đổi theo nhu cầu đã chọn.</p></article>
+<article class="dx-feature"><div class="dx-feature-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="m4 17 5-5 4 3 7-9M16 6h4v4"></path></svg></div><span>02 / ADVISOR</span><h3>Ba hướng đề xuất</h3><p>Tiết kiệm, cân bằng và cao cấp; nêu rõ lý do chọn cùng các điểm cần đánh đổi.</p></article>
+<article class="dx-feature"><div class="dx-feature-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="18" rx="3" width="16" x="4" y="3"></rect><path d="M9 9h6M9 13h6M9 17h3"></path></svg></div><span>03 / COMPATIBLE</span><h3>Kiểm tra tương thích</h3><p>Lọc CPU, mainboard, RAM và các linh kiện theo những thông số đã có trong kho dữ liệu.</p></article>
+<article class="dx-feature"><div class="dx-feature-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M8 5h11v11M19 5l-8 8M4 9v11h11"></path></svg></div><span>04 / COMPARE</span><h3>So sánh rõ ràng</h3><p>Đối chiếu cấu hình theo giá tham khảo, mục đích sử dụng và ưu nhược điểm.</p></article>
+</div>
+</section>
+<section aria-labelledby="dxWhyHeading" class="dx-section dx-why" id="dx-why">
+<div class="dx-why-copy"><span class="dx-overline">03 / LÝ DO CHỌN DEXORA</span><h2 id="dxWhyHeading">Không chỉ nói<br/><em>“nên mua gì”.</em></h2><p>Một đề xuất tốt phải giúp bạn hiểu <strong>vì sao</strong> một linh kiện được chọn, điểm nào đáp ứng nhu cầu và điểm nào chưa đủ cơ sở kết luận.</p><ul><li><b>Giải thích dễ hiểu</b><span>Ưu tiên theo nhu cầu thực tế của từng người.</span></li><li><b>Minh bạch dữ liệu</b><span>Giá tham khảo, cảnh báo và giới hạn đánh giá được ghi rõ.</span></li><li><b>Giữ quyền quyết định</b><span>Bạn có thể tự build hoặc dùng gợi ý làm điểm khởi đầu.</span></li></ul></div>
+<div aria-label="Mô phỏng cách hiển thị lời tư vấn" class="dx-preview-panel">
+<div class="dx-preview-top"><span><i></i> DEXORA / SMART ADVISOR</span><span class="dx-demo-tag">MINH HỌA</span></div>
+<h3>Một ngân sách.<br/>Ba cách tối ưu.</h3>
+<div class="dx-preview-chips"><span>Game 2K</span><span>Livestream</span><span>Revit</span></div>
+<div aria-label="Xem trước ba phương án tư vấn" class="dx-option-switch" role="group">
+<button aria-pressed="false" data-dx-preview="save" type="button"><small>01</small> Tiết kiệm</button>
+<button aria-pressed="true" class="is-active" data-dx-preview="balanced" type="button"><small>02</small> Cân bằng</button>
+<button aria-pressed="false" data-dx-preview="high" type="button"><small>03</small> Cao cấp</button>
+</div>
+<div aria-live="polite" class="dx-preview-explanation"><div class="dx-explanation-icon">✦</div><div><strong id="dxPreviewTitle">Vì sao chọn phương án cân bằng?</strong><p id="dxPreviewText">Phân bổ ngân sách giữa GPU dành cho game 2K, CPU đủ đáp ứng đa nhiệm và RAM phù hợp để vừa chơi vừa làm việc. Cần kiểm tra benchmark cụ thể trước khi kết luận FPS.</p></div></div>
+<div class="dx-preview-bottom"><span>Ví dụ cách giải thích — không phải đề xuất sản phẩm thực tế</span><span>02 / 03</span></div>
+</div>
+</section>
+<section aria-labelledby="dxStartHeading" class="dx-bottom-cta"><div><span class="dx-overline">BẮT ĐẦU VỚI DEXORA</span><h2 id="dxStartHeading">Bộ máy phù hợp bắt đầu từ<br/><em>nhu cầu của bạn.</em></h2></div><div class="dx-bottom-actions"><button class="dx-button dx-button-primary" data-home-open="advisor" type="button">Tư vấn cấu hình PC <span aria-hidden="true">↗</span></button><button class="dx-button dx-button-ghost" data-home-open="laptop" type="button">Khám phá Laptop <span aria-hidden="true">↗</span></button></div></section>
+</main>
+</div>
+</section><script>window.DEXORA_ROOT='./';</script><script defer="" src="./assets/js/dexora-preview.js?v=200"></script><script defer="" src="./assets/js/site-common.js?v=200"></script></body></html>

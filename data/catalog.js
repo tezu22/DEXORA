@@ -83,7 +83,11 @@ window.NEON_CATALOG = {
         "DDR5"
       ],
       "brand": "Intel",
-      "price": null
+      "price": null,
+      "links": {
+        "tinhocngoisao": "https://tinhocngoisao.com/products/cpu-intel-core-i5-14600kf-tr"
+      },
+      "sku_note": "14600KF Tray; phân biệt 14600K và bản Box"
     },
     {
       "id": "intel-core-i7-14700",

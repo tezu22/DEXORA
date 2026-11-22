@@ -1,39 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="510" viewBox="0 0 720 510" fill="none" role="img" aria-labelledby="title desc">
-<title id="title">Máy tính desktop và laptop DEXORA</title><desc id="desc">Minh họa PC màu tối với quạt neon xanh và laptop màn hình xanh cyan</desc>
+<title id="title">Máy tính desktop và laptop DEXORA</title><desc id="desc">Minh họa PC màu tối với quạt neon xanh và laptop màn hình tím thạch anh</desc>
 <defs>
 <linearGradient id="pcbody" x1="400" y1="110" x2="610" y2="455" gradientUnits="userSpaceOnUse"><stop stop-color="#345062"/><stop offset=".42" stop-color="#142331"/><stop offset="1" stop-color="#07141D"/></linearGradient>
 <linearGradient id="pcglass" x1="442" y1="129" x2="554" y2="431" gradientUnits="userSpaceOnUse"><stop stop-color="#203A40" stop-opacity=".9"/><stop offset="1" stop-color="#07151D" stop-opacity=".98"/></linearGradient>
 <linearGradient id="laptop" x1="110" y1="274" x2="330" y2="423" gradientUnits="userSpaceOnUse"><stop stop-color="#264558"/><stop offset="1" stop-color="#0A1825"/></linearGradient>
-<linearGradient id="screen" x1="125" y1="275" x2="332" y2="425" gradientUnits="userSpaceOnUse"><stop stop-color="#143C4C"/><stop offset="1" stop-color="#071A28"/></linearGradient>
-<radialGradient id="limeGlow" cx="0" cy="0" r="1" gradientTransform="translate(498 280) rotate(90) scale(195 185)" gradientUnits="userSpaceOnUse"><stop stop-color="#C9FF4A" stop-opacity=".26"/><stop offset="1" stop-color="#C9FF4A" stop-opacity="0"/></radialGradient>
-<radialGradient id="cyanGlow" cx="0" cy="0" r="1" gradientTransform="translate(247 370) rotate(90) scale(166 220)" gradientUnits="userSpaceOnUse"><stop stop-color="#56D6EB" stop-opacity=".22"/><stop offset="1" stop-color="#56D6EB" stop-opacity="0"/></radialGradient>
+<linearGradient id="screen" x1="125" y1="275" x2="332" y2="425" gradientUnits="userSpaceOnUse"><stop stop-color="#2D214B"/><stop offset="1" stop-color="#160E29"/></linearGradient>
+<radialGradient id="limeGlow" cx="0" cy="0" r="1" gradientTransform="translate(498 280) rotate(90) scale(195 185)" gradientUnits="userSpaceOnUse"><stop stop-color="#56D6EB" stop-opacity=".26"/><stop offset="1" stop-color="#56D6EB" stop-opacity="0"/></radialGradient>
+<radialGradient id="cyanGlow" cx="0" cy="0" r="1" gradientTransform="translate(247 370) rotate(90) scale(166 220)" gradientUnits="userSpaceOnUse"><stop stop-color="#C38AF5" stop-opacity=".22"/><stop offset="1" stop-color="#C38AF5" stop-opacity="0"/></radialGradient>
 <filter id="glow"><feGaussianBlur stdDeviation="7"/></filter><filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="18"/></filter>
 </defs>
 <ellipse cx="488" cy="449" rx="160" ry="28" fill="#000" opacity=".7" filter="url(#shadow)"/><ellipse cx="241" cy="457" rx="180" ry="21" fill="#000" opacity=".7" filter="url(#shadow)"/>
 <circle cx="490" cy="275" r="188" fill="url(#limeGlow)"/><circle cx="255" cy="369" r="175" fill="url(#cyanGlow)"/>
-<circle cx="468" cy="279" r="196" stroke="#C9FF4A" stroke-opacity=".16" stroke-width="1"/><circle cx="468" cy="279" r="161" stroke="#C9FF4A" stroke-opacity=".12" stroke-width="1" stroke-dasharray="8 14"/>
-<path d="M347 459H667" stroke="#C9FF4A" stroke-opacity=".28"/><path d="M50 463h279" stroke="#56D6EB" stroke-opacity=".24"/>
+<circle cx="468" cy="279" r="196" stroke="#56D6EB" stroke-opacity=".16" stroke-width="1"/><circle cx="468" cy="279" r="161" stroke="#56D6EB" stroke-opacity=".12" stroke-width="1" stroke-dasharray="8 14"/>
+<path d="M347 459H667" stroke="#56D6EB" stroke-opacity=".28"/><path d="M50 463h279" stroke="#C38AF5" stroke-opacity=".24"/>
 <!-- PC case shadow and right edge -->
 <path d="m442 113 152 10 29 28v291l-28 17-154-10-20-22V133z" fill="#050E16" stroke="#40606A" stroke-width="2"/>
 <path d="m594 123 29 28v291l-28 17V151z" fill="#101E2B" stroke="#4F6C77" stroke-width="1.5"/>
 <path d="M439 117h154v331H439z" fill="url(#pcbody)" stroke="#74919A" stroke-width="2" rx="12"/>
 <rect x="451" y="133" width="123" height="291" rx="9" fill="url(#pcglass)" stroke="#547786" stroke-opacity=".8"/>
 <path d="M462 151h103v257H462z" fill="#06141D" stroke="#35505D" stroke-opacity=".8"/>
-<path d="M457 145v272" stroke="#C9FF4A" stroke-opacity=".35" stroke-width="2"/>
-<rect x="472" y="351" width="78" height="14" rx="3" fill="#162C36" stroke="#3C626A"/><path d="M482 357h58" stroke="#C9FF4A" stroke-opacity=".7" stroke-width="2"/>
+<path d="M457 145v272" stroke="#56D6EB" stroke-opacity=".35" stroke-width="2"/>
+<rect x="472" y="351" width="78" height="14" rx="3" fill="#162C36" stroke="#3C626A"/><path d="M482 357h58" stroke="#56D6EB" stroke-opacity=".7" stroke-width="2"/>
 <path d="M483 238h70v51h-70z" fill="#152D36" stroke="#5D8A82" stroke-opacity=".7"/><path d="M493 258h52M493 268h40" stroke="#7D9BA0" stroke-opacity=".5"/>
-<g stroke="#BFFE51" stroke-opacity=".9" stroke-width="2.8"><circle cx="517" cy="186" r="27"/><circle cx="517" cy="186" r="15" stroke-opacity=".4"/><circle cx="517" cy="316" r="27"/><circle cx="517" cy="316" r="15" stroke-opacity=".4"/><circle cx="517" cy="385" r="27"/><circle cx="517" cy="385" r="15" stroke-opacity=".4"/></g>
-<g stroke="#C9FF4A" stroke-opacity=".25" stroke-width="11" filter="url(#glow)"><circle cx="517" cy="186" r="27"/><circle cx="517" cy="316" r="27"/><circle cx="517" cy="385" r="27"/></g>
-<g fill="#C9FF4A" fill-opacity=".35"><path d="m517 169 8 16-8 2-3-3z"/><path d="m517 299 8 16-8 2-3-3z"/><path d="m517 368 8 16-8 2-3-3z"/></g>
-<path d="m441 136 7-8M440 433l8 9" stroke="#A1E862" stroke-opacity=".55" stroke-width="3"/>
-<rect x="462" y="424" width="39" height="10" rx="2" fill="#0C1C29"/><path d="M471 429h22" stroke="#C9FF4A" stroke-opacity=".8"/>
+<g stroke="#56D6EB" stroke-opacity=".9" stroke-width="2.8"><circle cx="517" cy="186" r="27"/><circle cx="517" cy="186" r="15" stroke-opacity=".4"/><circle cx="517" cy="316" r="27"/><circle cx="517" cy="316" r="15" stroke-opacity=".4"/><circle cx="517" cy="385" r="27"/><circle cx="517" cy="385" r="15" stroke-opacity=".4"/></g>
+<g stroke="#56D6EB" stroke-opacity=".25" stroke-width="11" filter="url(#glow)"><circle cx="517" cy="186" r="27"/><circle cx="517" cy="316" r="27"/><circle cx="517" cy="385" r="27"/></g>
+<g fill="#56D6EB" fill-opacity=".35"><path d="m517 169 8 16-8 2-3-3z"/><path d="m517 299 8 16-8 2-3-3z"/><path d="m517 368 8 16-8 2-3-3z"/></g>
+<path d="m441 136 7-8M440 433l8 9" stroke="#63C7EB" stroke-opacity=".55" stroke-width="3"/>
+<rect x="462" y="424" width="39" height="10" rx="2" fill="#0C1C29"/><path d="M471 429h22" stroke="#56D6EB" stroke-opacity=".8"/>
 <!-- laptop raised screen -->
 <path d="M117 257h226c6 0 10 5 10 11v145c0 5-5 10-10 10H117c-6 0-10-5-10-10V268c0-6 4-11 10-11Z" fill="url(#laptop)" stroke="#9BBAC6" stroke-width="3"/>
 <rect x="119" y="270" width="222" height="139" rx="3" fill="url(#screen)" stroke="#356D78" stroke-width="1"/>
-<path d="M135 388c34-56 57-76 94-80s60 8 95-17" stroke="#56D6EB" stroke-opacity=".25" stroke-width="2"/><path d="m122 398 79-109 51 34 83-49" stroke="#52E0F0" stroke-opacity=".36"/>
-<path d="M135 286h53M135 295h31" stroke="#96D4E0" stroke-opacity=".6" stroke-width="2"/>
-<circle cx="231" cy="341" r="48" stroke="#56D6EB" stroke-opacity=".3"/><circle cx="231" cy="341" r="35" stroke="#56D6EB" stroke-opacity=".45"/>
-<path d="m221 319 25 22-25 21-8-9 15-12-15-13z" fill="#D9F8F8"/><path d="m214 358 40-37" stroke="#C9FF4A" stroke-width="5"/>
+<path d="M135 388c34-56 57-76 94-80s60 8 95-17" stroke="#C38AF5" stroke-opacity=".25" stroke-width="2"/><path d="m122 398 79-109 51 34 83-49" stroke="#B780ED" stroke-opacity=".36"/>
+<path d="M135 286h53M135 295h31" stroke="#CFB2EF" stroke-opacity=".6" stroke-width="2"/>
+<circle cx="231" cy="341" r="48" stroke="#C38AF5" stroke-opacity=".3"/><circle cx="231" cy="341" r="35" stroke="#C38AF5" stroke-opacity=".45"/>
+<path d="m221 319 25 22-25 21-8-9 15-12-15-13z" fill="#EEDAFF"/><path d="m214 358 40-37" stroke="#56D6EB" stroke-width="5"/>
 <path d="m104 423 252 0 42 29c4 3 1 8-6 8H55c-8 0-10-4-5-8z" fill="#27404D" stroke="#83A9BA" stroke-width="2"/>
 <path d="m114 430 239 0 18 13H89z" fill="#0D2533" stroke="#547684"/>
 <path d="M103 432h246" stroke="#69A2B7" stroke-opacity=".5" stroke-dasharray="12 5"/>

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://tezu22.github.io/DEXORA/sitemap.xml
