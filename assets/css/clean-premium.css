@@ -1,0 +1,204 @@
+/* DEXORA | Clean Premium typography
+   Font pairing: Manrope for headings / labels, Inter for body and data.
+   Visual-only override for existing v1.4 layout; no JS or build-logic edits.
+   Loaded LAST to preserve reversibility and allow safe incremental updates.
+*/
+:root {
+  --font: "Inter", "Segoe UI", Arial, sans-serif;
+  --dx-display-font: "Manrope", "Inter", "Segoe UI", Arial, sans-serif;
+}
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font);
+  font-size: 14.5px;
+  line-height: 1.6;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button, input, select, textarea { font-family: var(--font); }
+
+/* GLOBAL: consistent hierarchy across all three portals */
+.dx-home, .landing, .laptop-portal, .app {
+  font-family: var(--font);
+}
+:is(.dx-home, .laptop-portal, .app) :is(h1, h2, h3),
+.dx-home .dx-brand, .laptop-portal .landing-brand, .app .logo {
+  font-family: var(--dx-display-font);
+  font-weight: 800;
+  letter-spacing: -.032em;
+}
+:is(.app, .dx-home, .laptop-portal) :is(input, select, textarea, button) {
+  font-family: var(--font);
+}
+:is(.app, .dx-home, .laptop-portal) :is(.option-price, .part-price, .metric .value, .advisor-result-price, .budget-amount input, .total strong) {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.015em;
+}
+
+/* HOME / NAVIGATION */
+.dx-home { line-height: 1.65; }
+.dx-home .dx-brand {
+  font-size: 28px;
+  letter-spacing: -.055em;
+}
+.dx-home .dx-nav a, .dx-home .dx-nav button {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -.01em;
+}
+.dx-home .dx-nav-cta {
+  font-size: 12.5px;
+  font-weight: 750;
+  letter-spacing: -.005em;
+}
+.dx-home .dx-kicker, .dx-home .dx-overline {
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .105em;
+  line-height: 1.6;
+}
+.dx-home .dx-hero h1 {
+  font-family: var(--dx-display-font);
+  font-size: clamp(42px,5vw,76px);
+  font-weight: 800;
+  line-height: 1.19;
+  letter-spacing: -.049em;
+  text-wrap: balance;
+}
+.dx-home .dx-hero-copy>p {
+  font-size: 15px;
+  line-height: 1.85;
+  color: #b4c6ce;
+}
+.dx-home .dx-hero-copy>p strong {font-weight: 750;}
+.dx-home .dx-hero-notes {
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.65;
+}
+.dx-home .dx-button {
+  font-size: 12.5px;
+  font-weight: 750;
+  line-height: 1.45;
+  letter-spacing: .005em;
+}
+.dx-home .dx-trust-strip strong { font-size: 13px; font-weight: 750; }
+.dx-home .dx-trust-strip small { font-size: 11px; line-height: 1.55; }
+.dx-home .dx-section-heading h2, .dx-home .dx-why h2 {
+  font-family: var(--dx-display-font);
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: 1.28;
+}
+.dx-home .dx-section-heading>p, .dx-home .dx-why-copy>p {
+  font-size: 14px;
+  line-height: 1.85;
+  color: #b0c3cc;
+}
+.dx-home .dx-gateway-copy h3 {
+  font-family: var(--dx-display-font);
+  font-weight: 800;
+  letter-spacing: -.042em;
+}
+.dx-home .dx-gateway-copy p,
+.dx-home .dx-feature p {
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: #b2c4cc;
+}
+.dx-home .dx-gateway-actions .dx-text-button {font-size: 12px;}
+.dx-home .dx-small-label, .dx-home .dx-preview-hint {font-size: 10.5px;}
+.dx-home .dx-chip-row span {font-size: 10.5px;}
+.dx-home .dx-feature h3 {font-size: 16px;font-weight: 800;}
+.dx-home .dx-feature>span {font-family: var(--font);font-size: 10.5px;}
+.dx-home .dx-why-copy li b {font-size: 13px;}
+.dx-home .dx-why-copy li span {font-size: 12px;}
+.dx-home .dx-preview-panel h3 {font-family: var(--dx-display-font);letter-spacing: -.035em;}
+.dx-home .dx-preview-top {font-family: var(--font);font-size: 10.5px;letter-spacing: .035em;}
+.dx-home .dx-option-switch button {font-size: 12px;font-weight: 750;}
+.dx-home .dx-preview-explanation strong {font-size: 12px;}
+.dx-home .dx-preview-explanation p {font-size: 11.5px;line-height: 1.8;}
+.dx-home .dx-preview-bottom {font-size: 10.5px;}
+.dx-home .dx-footer-brand strong {font-family: var(--dx-display-font);letter-spacing: -.04em;}
+.dx-home .dx-footer p, .dx-home .dx-footer>span, .dx-home .dx-footer-brand span {font-size: 10.5px;}
+
+/* LAPTOP PREVIEW */
+.laptop-portal .portal-hero h1,
+.laptop-portal .portal-section-title h2 {font-family: var(--dx-display-font);font-weight: 800;letter-spacing: -.045em;line-height: 1.18;}
+.laptop-portal .portal-hero p, .laptop-portal .portal-section-title p {font-size: 14px;line-height: 1.8;}
+.laptop-portal .landing-brand {letter-spacing: -.04em;}
+.laptop-portal :is(.laptop-field, .laptop-field legend) {font-size: 13px;}
+.laptop-portal .laptop-radio-grid span, .laptop-portal .laptop-check-grid span {font-size: 12.5px;}
+
+/* PC BUILDER / COMPONENT LIBRARY */
+.app .logo {letter-spacing: -.055em;}
+.app .nav button {font-size: 13.5px;font-weight: 650;letter-spacing: -.01em;}
+.app .navtitle, .app .version {font-family: var(--font);letter-spacing: .09em;}
+.app .crumb {font-size: 12.5px;}
+.app .hero h1 {
+  font-family: var(--dx-display-font);
+  font-size: clamp(33px,3.7vw,52px);
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1.16;
+}
+.app .hero p {font-size: 13.5px;line-height: 1.8;max-width: 545px;}
+.app .eyebrow, .app .kicker {font-family: var(--font);font-size: 11px;letter-spacing: .1em;}
+.app .section-head h2, .app .options-header h2, .app .page-intro h2 {letter-spacing: -.025em;}
+.app .btn {font-size: 12px;font-weight: 750;letter-spacing: .01em;}
+.app .part-name {font-family: var(--font);font-size: 11.5px;font-weight: 750;letter-spacing: .035em;}
+.app .part select {font-size: 13px;font-weight: 550;line-height: 1.4;}
+.app .part-price {font-size: 13px;font-weight: 800;}
+.app .part-price small, .app .footnote {font-size: 11px;}
+.app .option h3 {font-size: 17px;}
+.app .option p {font-size: 12.5px;line-height: 1.72;}
+.app .option-label, .app .micro, .app .option .sticker {font-family: var(--font);letter-spacing: .055em;}
+.app .option-price {font-size: 22px;font-weight: 800;}
+.app .specs {font-size: 11.5px;line-height: 1.5;}
+.app .catalog-item h3 {font-size: 15px;}
+.app .store-card p {font-size: 12px;line-height: 1.7;}
+
+/* ADVISOR / DYNAMIC RESULT CARDS */
+.app .advisor-page .page-intro h2 {font-family: var(--dx-display-font);font-weight: 800;letter-spacing: -.035em;}
+.app .advisor-section-head h3, .app .advisor-result-head h2,
+.app .advisor-result-card h3 {font-family: var(--dx-display-font);letter-spacing: -.025em;}
+.app .advisor-guide span {font-size: 11.5px;line-height: 1.55;}
+.app .advisor-group-title strong {font-size: 13px;}
+.app .advisor-group-title small {font-size: 11px;}
+.app .advisor-check, .app .advisor-answer {font-size: 12px;line-height: 1.6;}
+.app .advisor-priority label, .app .advisor-priority select {font-size: 11.5px;}
+.app .advisor-question legend {font-size: 13px;}
+.app .advisor-result-card p {font-size: 12px;line-height: 1.75;}
+.app .advisor-quick-spec span {font-size: 11.5px;line-height: 1.6;}
+.app .advisor-quick-spec b {font-size: 10.5px;}
+.app .advisor-detail-line, .app .advisor-disclaimer {font-size: 11.5px;line-height: 1.7;}
+.app .advisor-result-price {font-size: 15px;}
+.app .advisor-result-card .btn {font-size: 11.5px;}
+
+/* Responsive adjustment: prevent larger type from clipping on phones. */
+@media (max-width: 940px) {
+  .dx-home .dx-hero h1 {font-size:clamp(39px,5vw,56px);letter-spacing:-.04em;}
+}
+@media (max-width: 680px) {
+  body {font-size: 14px;}
+  .dx-home .dx-brand {font-size: 23px;}
+  .dx-home .dx-hero h1 {font-size: clamp(37px,8.6vw,54px);line-height:1.19;letter-spacing:-.043em;}
+  .dx-home .dx-hero-copy>p {font-size: 13.5px;line-height:1.85;}
+  .dx-home .dx-hero-notes {font-size: 10.5px;}
+  .dx-home .dx-hero-actions .dx-button {font-size: 11.5px;}
+  .dx-home .dx-kicker, .dx-home .dx-overline {font-size:10px;}
+  .dx-home .dx-section-heading h2 {font-size:30px;}
+  .dx-home .dx-section-heading>p {font-size:12.5px;}
+  .dx-home .dx-gateway-copy p {font-size: 12px;}
+  .dx-home .dx-feature p {font-size:11.5px;}
+  .dx-home .dx-feature h3 {font-size:14px;}
+  .dx-home .dx-why-copy>p {font-size:13px;}
+  .app .hero h1 {font-size: clamp(28px,7vw,40px);line-height:1.2;}
+  .app .hero p {font-size: 13px;}
+}
+@media (max-width: 380px) {
+  .dx-home .dx-hero h1 {font-size: 36px;}
+  .dx-home .dx-hero-actions .dx-button {font-size: 11px;}
+}

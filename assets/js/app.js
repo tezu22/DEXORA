@@ -16,9 +16,9 @@
   }
   for(const [category,group] of Object.entries(parts))for(const p of group)p.category=category;
   const catalogCount=()=>categories.reduce((total,c)=>total+parts[c.id].length,0);
-  const isPriced=p=>Number.isFinite(p.price)&&p.price>0;
+  const isPriced=p=>Number.isFinite(p.price)&&(p.price>0||(p.integrated&&p.price===0));
 
-  const initial = {cpu:'i5',board:'b760d4',ram:'d4',gpu:'5070ti',ssd:'1tb',cooler:'aio360',case:'mid',psu:'850'};
+  const initial = Object.fromEntries(categories.map(c=>[c.id,'']));
   const presets = [
     {key:'budget',type:'01 // TIẾT KIỆM',name:'SMART VALUE',description:'Ưu tiên số tiền hợp lý, vẫn đảm bảo tương thích cơ bản.',items:{cpu:'r5',board:'b650',ram:'d5b',gpu:'5060ti',ssd:'1tb',cooler:'air',case:'mini',psu:'650'}},
     {key:'balance',type:'02 // CÂN BẰNG',name:'SWEET SPOT',description:'Cân đối chi phí cho game và làm việc đa nhiệm.',items:{cpu:'r7',board:'b650',ram:'d5',gpu:'5070',ssd:'1tb',cooler:'aio240',case:'mid',psu:'750'}},
@@ -33,9 +33,12 @@
     return Number.isFinite(dt.getTime()) ? dt.toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Ho_Chi_Minh'}) : '';
   };
   function priceDescriptor(product){
+    if(!product?.id)return 'CHƯA CHỌN LINH KIỆN';
     const record=priceRecords.get(product.category+'/'+product.id);
+    if(product.integrated)return 'ĐÃ CÓ TRONG CPU • KHÔNG MUA VGA RỜI';
     if(!record)return isPriced(product)?'GIÁ ƯỚC TÍNH (DEMO)':'CHƯA CÓ GIÁ • VẪN CHỌN ĐƯỢC';
-    return 'GIÁ THAM KHẢO • '+formatVerified(record.last_verified)+(record.quotes?.some(q=>q.original_price>q.current_price)?' • ĐÃ GỒM GIÁ KHUYẾN MÃI':'');
+    const promo=record.quotes?.some(q=>q.conditional_offers?.length);
+    return 'GIÁ THAM KHẢO ĐÃ GHI NHẬN • '+formatVerified(record.last_verified)+(promo?' • Có ưu đãi có điều kiện, không tự áp dụng':'')+(record.quotes?.some(q=>q.original_price>q.current_price)?' • ĐÃ GỒM GIÁ KHUYẾN MÃI':'');
   }
   function showPriceSync(){
     const status=document.getElementById('priceSync');if(!status)return;
@@ -49,7 +52,7 @@
   async function syncShopPrices(){
     if(location.protocol==='file:'){showPriceSync();return;}
     try{
-      const response=await fetch('./data/prices.json?t='+Date.now(),{cache:'no-store'});
+      const response=await fetch((window.DEXORA_ROOT||'./')+'data/prices.json?t='+Date.now(),{cache:'no-store'});
       if(!response.ok)throw new Error('Không tải được dữ liệu giá');
       const payload=await response.json();
       if(payload.currency!=='VND'||!payload.entries||typeof payload.entries!=='object')throw new Error('Dữ liệu không hợp lệ');
@@ -68,26 +71,30 @@
       render();
     }catch(err){showPriceSync();}
   }
-  const restored = (() => {try{return JSON.parse(localStorage.getItem('neon-rig-demo'))}catch{return null}})();
+  const restored = (()=>{try{return JSON.parse(sessionStorage.getItem('dexora-active-build')||'null')}catch{return null}})();
   let selected = {...initial,...(restored?.selected || {})};
   let regionId = regions.some(r=>r.id===restored?.regionId) ? restored.regionId : 'cantho';
   let storeId = restored?.storeId || '';
   const regionCurrent = () => regions.find(r=>r.id===regionId) || regions[0];
   const storeCurrent = () => regionCurrent().stores.find(s=>s.id===storeId) || regionCurrent().stores[0];
   let budget = Number.isFinite(restored?.budget) && restored.budget>=1000000 && restored.budget<=10000000000 ? restored.budget : 55000000;
-  let page = 'build', usage = restored?.usage || 'gaming', catalogFilter = 'all', catalogQuery = '';
+  let page = document.body.dataset.pcPage || 'build', usage = restored?.usage || 'gaming', catalogFilter = 'all', catalogQuery = '';
+  let catalogBrand='all',catalogColor='all',catalogSort='price-asc',catalogMinPrice=0,catalogMaxPrice=0;
+  const persistDraft=()=>{try{sessionStorage.setItem('dexora-active-build',JSON.stringify({selected,budget,regionId,storeId,usage,colorMode,colorPolicy}))}catch{}};
   let colorMode = ['white','black','mixed','any'].includes(restored?.colorMode)?restored.colorMode:'any';
   let colorPolicy = restored?.colorPolicy==='strict'?'strict':'prefer';
 
   let comparisonKey = null, comparisonLocked = false, comparisonExitTimer = null;
   let advisorComparisonIndex = null, advisorComparisonLocked = false, advisorComparisonExitTimer = null;
   const fmt = v => new Intl.NumberFormat('vi-VN').format(v)+' ₫';
-  const estimateLabel = n => Number.isFinite(n)?'~'+fmt(n):'Chưa đủ dữ liệu giá';
+  const estimateLabel = n => Number.isFinite(n)?(n===0?'0 ₫':'~'+fmt(n)):'Chưa đủ dữ liệu giá';
   const esc = v => String(v).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-  const get = (category,id) => parts[category].find(x=>x.id===id) || parts[category][0];
+  const emptyPart = category => ({id:'',category,name:'Chưa chọn',price:0,watts:0,socket:null,ram:null,rad:0,forms:[],sockets:[],gpuLength:0,gpuLengthUnknown:true,m2:0,integrated:false});
+  const get = (category,id) => id ? (parts[category].find(x=>x.id===id) || emptyPart(category)) : emptyPart(category);
   const partOf = (category,items=selected) => get(category,items[category]);
-  const priceOf = items => categories.every(c=>isPriced(get(c.id,items[c.id]))) ? categories.reduce((sum,c)=>sum+get(c.id,items[c.id]).price,0) : null;
-  const missingPriceCount = items => categories.filter(c=>!isPriced(get(c.id,items[c.id]))).length;
+  const priceOf = items => categories.every(c=>!items[c.id]||isPriced(get(c.id,items[c.id]))) ? categories.reduce((sum,c)=>sum+(items[c.id]?get(c.id,items[c.id]).price:0),0) : null;
+  const selectedCount=items=>categories.filter(c=>Boolean(items[c.id])).length;
+  const missingPriceCount = items => categories.filter(c=>items[c.id]&&!isPriced(get(c.id,items[c.id]))).length;
   // Colors are independent from store and compatibility filtering.
   // Unknown color NEVER counts as an exact match, but still remains selectable.
   const visibleColorCategories=['board','ram','gpu','cooler','case','psu'];
@@ -97,6 +104,7 @@
   const colorOf=p=>p?.color==='White'||p?.color==='Black'||p?.color==='Silver'?p.color
     : /\bWhite$/i.test(p?.name||'')?'White':/\bBlack$/i.test(p?.name||'')?'Black':null;
   const colorClass=(category,p)=>{
+    if(p?.integrated)return 'neutral';
     if(!visibleColorCategories.includes(category)||!desiredColor())return 'neutral';
     const found=colorOf(p);
     return found===desiredColor()?'match':found?'mismatch':'unknown';
@@ -124,7 +132,7 @@
     const out={matched:[],unknown:[],mismatch:[]};
     if(!desiredColor())return out;
     for(const cat of visibleColorCategories){
-      const entry=partOf(cat,items),state=colorClass(cat,entry);
+      const entry=partOf(cat,items);if(!items[cat]||entry?.integrated)continue;const state=colorClass(cat,entry);
       if(state==='match')out.matched.push(cat);
       if(state==='unknown')out.unknown.push(cat);
       if(state==='mismatch')out.mismatch.push(cat);
@@ -159,9 +167,11 @@
   }
   const activePresets=()=>presets.map(themedPreset);
   const colorSummary=items=>{
+    if(!selectedCount(items))return 'Chưa chọn linh kiện';
     if(!desiredColor())return colorMode==='mixed'?'PHỐI ĐEN / TRẮNG':'KHÔNG RÀNG BUỘC MÀU';
     const r=colorReview(items);
-    return `${r.matched.length}/${visibleColorCategories.length} món rõ màu ${colorName[desiredColor()].toLowerCase()} • ${r.unknown.length} chưa rõ • ${r.mismatch.length} khác màu`;
+    const visible=visibleColorCategories.filter(c=>items[c]&&!partOf(c,items).integrated).length;
+    return `${r.matched.length}/${visible} món rõ màu ${colorName[desiredColor()].toLowerCase()} • ${r.unknown.length} chưa rõ • ${r.mismatch.length} khác màu`;
   };
   const requiredPSU = items => {
     const cpu=partOf('cpu',items),gpu=partOf('gpu',items);
@@ -172,26 +182,24 @@
     const cpu=partOf('cpu',items),board=partOf('board',items),gpu=partOf('gpu',items),cooler=partOf('cooler',items);
     return parts[category].filter(p=>{
       switch(category){
-        case 'board': return p.socket===cpu.socket;
-        case 'ram': return p.ram===board.ram;
-        case 'ssd': return p.slot==='M2' ? board.m2>0 : true;
-        case 'cooler': return p.sockets.includes(cpu.socket) && (p.cap==null||p.cap>=cpu.watts);
-        case 'case': return p.forms.includes(board.form) && (p.maxGpu==null||gpu.gpuLength==null||p.maxGpu>=gpu.gpuLength) && (p.maxRad==null||p.maxRad>=cooler.rad) && (cooler.rad>0||p.maxAir==null||p.maxAir>=cooler.coolerHeight);
-        case 'psu': return p.watts>=requiredPSU(items);
+        case 'board': return !items.cpu || p.socket===cpu.socket;
+        case 'ram': return !items.board || p.ram===board.ram;
+        case 'gpu': return !p.integrated || (items.cpu && window.DEXORA_ADVISOR_ENGINE.cpuHasIntegratedGraphics(cpu));
+        case 'ssd': return !(items.board && p.slot==='M2') || board.m2>0;
+        case 'cooler': return !items.cpu || p.sockets.includes(cpu.socket) && (p.cap==null||p.cap>=cpu.watts);
+        case 'case': return (!items.board||p.forms.includes(board.form)) && (!items.gpu||p.maxGpu==null||gpu.gpuLength==null||p.maxGpu>=gpu.gpuLength) && (!items.cooler||p.maxRad==null||p.maxRad>=cooler.rad) && (!items.cooler||cooler.rad>0||p.maxAir==null||p.maxAir>=cooler.coolerHeight);
+        case 'psu': return !(items.cpu&&items.gpu) || p.watts>=requiredPSU(items);
         default: return true;
       }
     });
   };
   function normalize(items){
-    const next={...initial,...items};
-    const changes=[];
+    const next={...initial,...items},changes=[];
+    // Dependencies are cleared, never silently replaced with an arbitrary part.
     for(const category of categories){
-      const choices=compatibleOptions(category.id,next);
-      if(!choices.length){ throw Error('Không có linh kiện '+category.id+' phù hợp trong dữ liệu mẫu'); }
-      if(!choices.some(p=>p.id===next[category.id])){
-        changes.push(category.id);
-        next[category.id]=choices[0].id;
-      }
+      if(!next[category.id])continue;
+      const options=compatibleOptions(category.id,next);
+      if(!options.some(p=>p.id===next[category.id])){next[category.id]='';changes.push(category.id);}
     }
     return {items:next,changes};
   }
@@ -201,29 +209,44 @@
   function linkBelowPrice(p){const link=productLink(p);return link ? `<a class="shop-link" href="${esc(link)}" target="_blank" rel="noopener noreferrer" title="Link sản phẩm theo mã/phiên bản đã kiểm tra">XEM TẠI ${esc(storeCurrent().name)} ↗</a>` : '';}
   function assessment(items=selected){
     const cpu=partOf('cpu',items),board=partOf('board',items),ram=partOf('ram',items),cooler=partOf('cooler',items),cs=partOf('case',items),gpu=partOf('gpu',items),psu=partOf('psu',items);
-    const messages=[
-      {ok:cpu.socket===board.socket,label:`Socket: ${cpu.socket} ↔ mainboard ${board.socket}`},
-      {ok:board.ram===ram.ram,label:`RAM: main ${board.ram} ↔ bộ nhớ ${ram.ram}`},
-      {ok:cooler.sockets.includes(cpu.socket) ? (cooler.cap==null?null:cooler.cap>=cpu.watts):false,label:cooler.cap==null?'Tản nhiệt: cần kiểm tra ngàm lắp và khả năng làm mát theo phiên bản':'Tản nhiệt: phù hợp socket và công suất ước tính'},
-      {ok:!cs.forms.includes(board.form)?false:(cs.maxGpu==null||gpu.gpuLength==null||cs.maxRad==null||cs.maxAir==null)?null:(cs.maxGpu>=gpu.gpuLength && cs.maxRad>=cooler.rad && (!cooler.coolerHeight||cs.maxAir>=cooler.coolerHeight)),label:'Case: khớp form factor; cần xác minh chiều dài GPU/radiator/tản khí nếu thiếu thông số'},
-      {ok:psu.watts>=requiredPSU(items),label:`PSU: yêu cầu sơ bộ khoảng ${requiredPSU(items)}W`},
-      {ok:priceOf(items)==null?null:priceOf(items)<=budget,label:priceOf(items)==null?'Ngân sách: còn '+missingPriceCount(items)+' món chưa có giá':'Tổng giá tham khảo '+(priceOf(items)<=budget?'nằm trong':'vượt')+' ngân sách'}
+    const has=(...k)=>k.every(id=>Boolean(items[id]));
+    const checks=[
+      {ok:has('cpu','board')?cpu.socket===board.socket:null,label:has('cpu','board')?`Socket: ${cpu.socket} ↔ mainboard ${board.socket}`:'Socket: cần chọn CPU và mainboard'},
+      {ok:has('board','ram')?board.ram===ram.ram:null,label:has('board','ram')?`RAM: ${board.ram} ↔ ${ram.ram}`:'RAM: cần chọn mainboard và RAM'},
+      {ok:has('cpu','cooler')?(cooler.sockets.includes(cpu.socket)?(cooler.cap==null?null:cooler.cap>=cpu.watts):false):null,label:'Tản nhiệt: kiểm tra socket, khả năng tản và phiên bản ngàm'},
+      {ok:has('board','case','gpu','cooler')?(!cs.forms.includes(board.form)?false:cs.maxGpu==null||gpu.gpuLength==null||cs.maxRad==null?null:cs.maxGpu>=gpu.gpuLength&&cs.maxRad>=cooler.rad&&(!cooler.coolerHeight||cs.maxAir==null||cs.maxAir>=cooler.coolerHeight)):null,label:'Case: khớp form factor, chiều dài GPU, radiator và tản khí (nếu đủ số liệu)'},
+      {ok:has('cpu','gpu','psu')?psu.watts>=requiredPSU(items):null,label:has('cpu','gpu','psu')?`PSU: cần tối thiểu khoảng ${requiredPSU(items)}W (sơ bộ)`:'PSU: cần chọn CPU, GPU và nguồn'},
+      {ok:selectedCount(items)===categories.length&&priceOf(items)!=null?priceOf(items)<=budget:null,label:selectedCount(items)!==categories.length?'Ngân sách: cấu hình chưa đủ linh kiện':priceOf(items)==null?'Ngân sách: có món chưa có giá':'Ngân sách: giá tham khảo, không phải báo giá chính thức'}
     ];
-    const errors=messages.filter(m=>m.ok===false).length;
-    const pending=messages.filter(m=>m.ok===null).length;
-    const checked=messages.length-pending;
-    return {messages,errors,pending,score:checked?Math.round((checked-errors)/checked*100):0};
+    const errors=checks.filter(x=>x.ok===false).length,pending=checks.filter(x=>x.ok===null).length,checked=checks.length-pending;
+    return {messages:checks,errors,pending,score:checked?Math.round((checked-errors)/checked*100):0};
   }
-  const showToast = message => {const el=document.getElementById('toast');el.textContent=message;el.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>el.classList.remove('show'),3000)};
-  function save(){localStorage.setItem('neon-rig-demo',JSON.stringify({selected,budget,regionId,storeId,usage,colorMode,colorPolicy}));showToast('Đã lưu cấu hình vào trình duyệt');}
+  const showToast = message => {const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>el.classList.remove('show'),3000)};
+  async function save(){
+    if(!selectedCount(selected)){showToast('Hãy chọn ít nhất một linh kiện trước khi lưu');return;}
+    const name=prompt('Tên cấu hình muốn lưu:', 'Cấu hình DEXORA '+new Date().toLocaleDateString('vi-VN'));
+    if(!name)return;
+    try{await window.DEXORA_BUILDS.save({name:name.slice(0,70),selected:{...selected},budget,colorMode,colorPolicy,priceAtSave:priceOf(selected),createdAt:new Date().toISOString()});showToast('Đã lưu trên thiết bị');renderSavedBuilds();}
+    catch(e){showToast('Không lưu được dữ liệu trên thiết bị');}
+  }
+  async function renderSavedBuilds(){
+    const el=document.getElementById('savedBuildList');if(!el)return;
+    try{const list=await window.DEXORA_BUILDS.list();
+      el.innerHTML=list.length?list.map(b=>`<div class="saved-row"><div><strong>${esc(b.name)}</strong><small>${new Date(b.updatedAt).toLocaleDateString('vi-VN')} · ${Object.values(b.selected||{}).filter(Boolean).length}/8 linh kiện${Number.isFinite(b.priceAtSave)?' · Giá khi lưu '+estimateLabel(b.priceAtSave):''}</small></div><div><button type="button" data-open-saved="${esc(b.id)}">Mở</button><button type="button" data-export-saved="${esc(b.id)}">JSON</button><button type="button" data-delete-saved="${esc(b.id)}">Xóa</button></div></div>`).join(''):'<p>Chưa có cấu hình được lưu trên thiết bị này.</p>';
+      el.querySelectorAll('[data-open-saved]').forEach(btn=>btn.addEventListener('click',async()=>{const b=await window.DEXORA_BUILDS.get(btn.dataset.openSaved);if(!b)return;const unknown=categories.filter(c=>b.selected?.[c.id]&&!parts[c.id].some(p=>p.id===b.selected[c.id]));selected=normalize(b.selected).items;budget=b.budget||budget;colorMode=b.colorMode||'any';persistDraft();render();showToast(unknown.length?'Đã mở bản lưu nhưng một số mã linh kiện không còn trong danh mục: '+unknown.map(c=>c.short).join(', '):'Đã mở cấu hình '+b.name)}));
+      el.querySelectorAll('[data-delete-saved]').forEach(btn=>btn.addEventListener('click',async()=>{if(confirm('Xóa cấu hình đã lưu?')){await window.DEXORA_BUILDS.remove(btn.dataset.deleteSaved);renderSavedBuilds()}}));
+      el.querySelectorAll('[data-export-saved]').forEach(btn=>btn.addEventListener('click',async()=>{const b=await window.DEXORA_BUILDS.get(btn.dataset.exportSaved);if(b)window.DEXORA_BUILDS.exportJSON(b)}));
+    }catch(e){el.textContent='Không đọc được dữ liệu cục bộ trong trình duyệt này.'}
+  }
   function renderRegionToolbar(){
+    const el=document.getElementById('regionToolbar');if(!el)return;el.hidden=!['stores','build'].includes(page);if(el.hidden)return;
     const region=regionCurrent(),store=storeCurrent();
     document.getElementById('regionToolbar').innerHTML=`<div><label for="regionSelect">⌖ TỈNH/THÀNH THAM KHẢO</label><select id="regionSelect">${regions.map(r=>`<option value="${r.id}" ${r.id===regionId?'selected':''}>${esc(r.name)}</option>`).join('')}</select></div><div><label for="storeSelect">⌗ CỬA HÀNG THAM KHẢO</label><select id="storeSelect">${region.stores.map(s=>`<option value="${s.id}" ${s.id===store.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div><div class="region-note"><strong>Kho linh kiện độc lập với tỉnh/thành và cửa hàng.</strong><small>Chọn ${esc(store.name)} chỉ để tra cứu link sản phẩm có thật ở cửa hàng đó; không lọc mất CPU, GPU hoặc các mẫu PC khác. Giá có thể gồm dữ liệu cửa hàng đã xác minh và dữ liệu demo; không phải báo giá chắc chắn.</small></div>`;
     document.getElementById('regionSelect').addEventListener('change',e=>{regionId=e.target.value;storeId=regionCurrent().stores[0].id;render();});
     document.getElementById('storeSelect').addEventListener('change',e=>{storeId=e.target.value;render();});
   }
   function renderStores(){const region=regionCurrent(),chosen=storeCurrent();return `<section class="section page-alt"><div class="page-intro"><div class="kicker">// STORE DISCOVERY • VIET NAM</div><h2>Cửa hàng PC tại ${esc(region.name)}</h2><p>Danh sách cửa hàng dùng để gợi ý địa chỉ và link mua hàng. <strong>Không giới hạn danh sách linh kiện ở phần tự build.</strong></p></div><div class="store-grid">${region.stores.map(s=>`<article class="store-card ${s.id===chosen.id?'selected':''}"><div class="store-head"><h3>${esc(s.name)}</h3><span class="kicker">${s.id===chosen.id?'● ĐANG CHỌN':'○ CỬA HÀNG'}</span></div><p>⌖ ${esc(s.address)}</p><div class="store-actions"><button class="btn ${s.id===chosen.id?'':'ghost'}" data-store="${s.id}">${s.id===chosen.id?'ĐÃ CHỌN':'CHỌN CỬA HÀNG'}</button><a href="${esc(s.website)}" target="_blank" rel="noopener noreferrer">Website ↗</a><a href="${esc(s.source)}" target="_blank" rel="noopener noreferrer">Nguồn showroom ↗</a></div></article>`).join('')}</div><div class="store-help">Các link mua hàng dưới giá linh kiện chỉ hiển thị khi có trang sản phẩm đúng mẫu/phiên bản tại cửa hàng chọn. Nếu thiếu URL, phần link sẽ để trống. Link có thể thay đổi hoặc hết hàng; cần kiểm tra trên website cửa hàng.</div></section>`;}
-  function renderMetrics(){const sum=priceOf(selected),score=assessment().score;document.getElementById('metrics').innerHTML=`<div class="metric"><div class="name">Ngân sách mục tiêu</div><div class="value">${fmt(budget)}</div><div class="sub">Nhập trực tiếp ở phần tự build hoặc tư vấn</div></div><div class="metric"><div class="name">Chi phí cấu hình ước tính</div><div class="value ${sum==null?'cyan':sum>budget?'pink':'green'}">${estimateLabel(sum)}</div><div class="sub">Giá tham khảo toàn Việt Nam, không phụ thuộc cửa hàng đã chọn</div></div><div class="metric"><div class="name">Kiểm tra cơ bản</div><div class="value ${assessment().pending?'cyan':score===100?'cyan':'pink'}">${score}/100</div><div class="sub">6 điều kiện sơ bộ • chưa xác minh BIOS và dây cấp nguồn</div></div>`;}
+  function renderMetrics(){const el=document.getElementById('metrics');if(!el)return;el.hidden=!['build','advisor'].includes(page);if(el.hidden)return;const sum=priceOf(selected),score=assessment().score;el.innerHTML=`<div class="metric"><div class="name">Ngân sách mục tiêu</div><div class="value">${fmt(budget)}</div><div class="sub">Nhập trực tiếp ở phần tự build hoặc tư vấn</div></div><div class="metric"><div class="name">Chi phí cấu hình ước tính</div><div class="value ${sum==null?'cyan':sum>budget?'pink':'green'}">${estimateLabel(sum)}</div><div class="sub">Giá tham khảo toàn Việt Nam, không phụ thuộc cửa hàng đã chọn</div></div><div class="metric"><div class="name">Kiểm tra cơ bản</div><div class="value ${assessment().pending?'cyan':score===100?'cyan':'pink'}">${selectedCount(selected)===8?score+'/100':'Chưa đánh giá'}</div><div class="sub">6 điều kiện sơ bộ • chưa xác minh BIOS và dây cấp nguồn</div></div>`;}
   const budgetQuickValues=[20000000,30000000,40000000,50000000,70000000];
   const budgetDisplayNumber = n => new Intl.NumberFormat('vi-VN').format(n);
   function parseBudgetInput(raw){
@@ -353,11 +376,19 @@
     updateComparisonUI();
   }
   function optionCards(){return `<section class="compare-stage" data-compare-stage aria-label="Ba phương án cấu hình và so sánh tương tác"><div class="options-header"><div><div class="kicker">// SO SÁNH & TỐI ƯU</div><h2>3 PHƯƠNG ÁN THAM KHẢO</h2></div></div><p class="compare-hint"><span class="pulse"></span><span><strong>Rê chuột</strong> vào một phương án để xem phân tích bên dưới. <strong>Nhấn</strong> để giữ bảng mở; trên điện thoại, chỉ cần chạm.</span></p><div class="option-grid">${activePresets().map((p,i)=>{const sum=priceOf(p.items);return `<article class="option ${i===1?'featured':''}" data-option="${p.key}">${i===1?'<span class="sticker">GỢI Ý</span>':''}<button class="option-focus" type="button" data-compare="${p.key}" aria-pressed="false" aria-label="Xem phân tích ${esc(p.name)} so với cấu hình hiện tại"><div class="option-label">${p.type}</div><h3>${p.name}</h3><div class="option-price">${estimateLabel(sum)}</div><p>${p.description}</p><div class="option-color-status">◐ ${esc(colorSummary(p.items))}</div><div class="specs"><span>◈ ${esc(partOf('cpu',p.items).name)}</span><span>◈ ${esc(partOf('gpu',p.items).name)}</span><span style="color:${sum==null?'#9fb3c4':sum>budget?'#ff9ca4':'#a8e6a9'}">${sum==null?'? Chưa đủ dữ liệu giá':sum>budget?'↑ Ước tính vượt ngân sách':'✓ Ước tính trong ngân sách'}</span></div><div class="compare-cta"><span>↗</span> XEM SO SÁNH & PHÂN TÍCH</div></button><button class="btn ${i===1?'primary':''}" data-apply="${p.key}" ${colorPolicy==='strict'&&desiredColor()&&(colorReview(p.items).mismatch.length||colorReview(p.items).unknown.length)?'disabled title="Chưa đủ dữ liệu màu"':''}>ÁP DỤNG CẤU HÌNH ↗</button></article>`;}).join('')}</div><div class="compare-reveal" data-compare-reveal aria-hidden="true" inert><div class="compare-reveal-clip"><div class="compare-reveal-inner" data-compare-content></div></div></div></section>`;}
-  function renderBuild(){const status=assessment();return `<div class="layout" id="workspace"><section class="section"><div class="section-head"><div><div class="kicker">// LỰA CHỌN LINH KIỆN</div><h2>Cấu hình bạn đang chọn</h2></div><div class="micro">08 / 08 LINH KIỆN</div></div>${budgetPanel()}${colorPanel()}<div class="build-instruction"><span class="seq">01 CPU → 02 MAIN → 03 RAM</span><span>Chọn theo thứ tự. Khi đổi CPU hoặc mainboard, hệ thống sẽ điều chỉnh các lựa chọn không còn tương thích.</span></div><div class="parts">${categories.map((c,i)=>{const current=partOf(c.id),choices=sortedColorChoices(c.id,compatibleOptions(c.id,selected));return `<div class="part"><div class="part-ico">${c.short}</div><div class="component-control"><div class="part-name">${esc(c.label)} <span class="match-count">${choices.length}/${parts[c.id].length} phù hợp</span></div><input class="part-search" data-part-search="${c.id}" type="search" placeholder="Lọc nhanh ${esc(c.short)} (${choices.length} lựa chọn)..." autocomplete="off" aria-label="Lọc linh kiện ${esc(c.short)}"><select data-part="${c.id}" aria-label="Chọn ${esc(c.label)}">${choices.map(p=>`<option value="${p.id}" ${p.id===selected[c.id]?'selected':''}>${esc(p.name)}${desiredColor()&&visibleColorCategories.includes(c.id)?' • '+colorText(c.id,p):''}</option>`).join('')}</select><span class="part-hint">${esc(c.hint)}${desiredColor()&&visibleColorCategories.includes(c.id)?` • ${colorText(c.id,current)}`:""}</span></div><div class="part-price"><strong>${estimateLabel(current.price)}</strong><small>${priceDescriptor(current)}</small>${linkBelowPrice(current)}</div></div>`}).join('')}</div><div class="section-foot"><div class="footnote"><strong>Lưu ý:</strong> Giá chưa xác minh là dữ liệu minh họa; một số mẫu linh kiện, kích thước GPU/case và khả năng tải tản nhiệt là dữ liệu mô phỏng. Kiểm tra thông số chính hãng, BIOS, đầu nguồn và kích thước trước khi mua. Đường dẫn sản phẩm không bảo đảm cửa hàng còn hàng.</div><div><button class="btn ghost" id="resetBtn">ĐẶT LẠI</button> <button class="btn primary" id="saveBtn">LƯU CẤU HÌNH ↗</button></div></div></section><aside class="section inspector"><div class="kicker">ĐÁNH GIÁ SƠ BỘ //</div><h3>Kiểm tra tương thích cơ bản</h3><div class="score-ring" style="--progress:${status.score}"><div class="score-inner"><strong>${status.score}</strong><span>/ 100 ĐIỂM KIỂM TRA</span></div></div><div class="rating">${status.errors>0?'⚠ CẦN KIỂM TRA LẠI':status.pending?'◌ CÒN THÔNG SỐ CẦN XÁC MINH':'✓ CHƯA PHÁT HIỆN LỖI THEO DỮ LIỆU CÓ SẴN'}</div><div class="checklist">${status.messages.map(m=>`<div class="check ${m.ok===false?'warn':m.ok===null?'pending':''}"><span class="check-icon">${m.ok===null?'?':m.ok?'✓':'!'}</span><span>${esc(m.label)}</span></div>`).join('')}</div><div class="color-inspector"><div class="kicker">◐ COLOR MATCH</div><strong>${esc(colorSummary(selected))}</strong>${desiredColor()&&colorReview(selected).mismatch.length?`<small class="color-alert">Khác màu: ${colorReview(selected).mismatch.map(c=>c.toUpperCase()).join(", ")}</small>`:""}${desiredColor()&&colorReview(selected).unknown.length?`<small>Chưa xác minh: ${colorReview(selected).unknown.map(c=>c.toUpperCase()).join(", ")}</small>`:""}</div><div class="total"><label>TỔNG CHI PHÍ ƯỚC TÍNH</label><strong>${estimateLabel(priceOf(selected))}</strong></div></aside></div>${optionCards()}`;}
-  /* -------------------------------------------------------------
-     Smart Consultation — independent multi-answer questionnaire
-     All answers are opt-in. Suggestions remain rule-based previews.
-     ------------------------------------------------------------- */
+  function renderBuild(){
+    const status=assessment(),count=selectedCount(selected);
+    return `<div class="layout" id="workspace"><section class="section"><div class="section-head"><div><div class="kicker">// TỰ CHỌN LINH KIỆN</div><h2>Cấu hình của bạn</h2></div><div class="micro">${count} / 08 LINH KIỆN</div></div>
+      ${budgetPanel()}${colorPanel()}<p class="build-instruction"><strong>Gợi ý thứ tự:</strong> CPU → Mainboard → RAM; các ô đều để trống cho đến khi bạn chọn.</p>
+      <div class="parts">${categories.map(c=>{const p=partOf(c.id),choices=sortedColorChoices(c.id,compatibleOptions(c.id,selected));return `<div class="part"><div class="part-ico">${esc(c.short)}</div><div class="component-control"><div class="part-name">${esc(c.label)} <span class="match-count">${choices.length} lựa chọn</span></div>
+      <input class="part-search" data-part-search="${c.id}" type="search" placeholder="Tìm ${esc(c.short)} theo tên / mã..." aria-label="Tìm ${esc(c.label)}"><select data-part="${c.id}" aria-label="Chọn ${esc(c.label)}"><option value="" ${!selected[c.id]?'selected':''}>— Chọn linh kiện —</option>${choices.map(item=>`<option value="${esc(item.id)}" ${item.id===selected[c.id]?'selected':''}>${esc(item.name)}</option>`).join('')}</select><span class="part-hint">${esc(c.hint)}</span></div>
+      <div class="part-price"><strong>${selected[c.id]?estimateLabel(p.price):'Chưa chọn'}</strong><small>${selected[c.id]?priceDescriptor(p):'Chưa có giá'}</small>${selected[c.id]?linkBelowPrice(p):''}</div></div>`}).join('')}</div>
+      <div class="notice-critical" role="note"><strong>ⓘ LƯU Ý QUAN TRỌNG — GIÁ & TƯƠNG THÍCH</strong><p>Giá demo chỉ mang tính minh họa, không phải báo giá bán hàng. Một số kích thước GPU/case, khả năng tản nhiệt và thông số khác chưa được xác minh. Hãy kiểm tra model, phiên bản BIOS, đầu cấp nguồn, kích thước và tồn kho với nhà bán trước khi đặt mua. Link cửa hàng chỉ để tham khảo.</p></div>
+      <div class="section-foot"><div class="dx-build-buttons"><button class="btn ghost" id="resetBtn" type="button">XÓA LỰA CHỌN</button><button class="btn primary" id="saveBtn" type="button">LƯU CẤU HÌNH</button><button class="btn ghost" id="shareBtn" type="button">CHIA SẺ LINK</button><button class="btn ghost" id="exportCurrentBtn" type="button">XUẤT JSON</button><label class="btn ghost import-btn">NHẬP JSON<input id="importBuildFile" type="file" accept=".json,application/json" hidden></label><a class="btn ghost" href="./compare.html">SO SÁNH RIÊNG ↗</a></div></div>
+      <div class="saved-builds"><h3>Cấu hình đã lưu trên thiết bị</h3><p class="muted">Dữ liệu không đồng bộ qua tài khoản. Nên xuất JSON nếu muốn lưu lâu dài hoặc chuyển máy.</p><div id="savedBuildList">Đang tải...</div></div>
+      </section><aside class="section inspector"><div class="kicker">KIỂM TRA SƠ BỘ</div><h3>${count===8?'Đánh giá cấu hình':'Chưa hoàn thiện cấu hình'}</h3><div class="score-ring" style="--progress:${status.score}"><div class="score-inner"><strong>${count===8?status.score:'—'}</strong><span>/ 100 ĐIỂM SƠ BỘ</span></div></div><div class="rating">${!count?'CHƯA CHỌN LINH KIỆN':count<8?`CÒN THIẾU ${8-count} LINH KIỆN`:status.errors?'CÓ XUNG ĐỘT CẦN KIỂM TRA':status.pending?'CÒN DỮ LIỆU CHƯA XÁC MINH':'CHƯA PHÁT HIỆN XUNG ĐỘT TRONG DỮ LIỆU'}</div>
+      <div class="checklist">${status.messages.map(m=>`<div class="check ${m.ok===false?'warn':m.ok===null?'pending':''}"><span class="check-icon">${m.ok===null?'?':m.ok?'✓':'!'}</span><span>${esc(m.label)}</span></div>`).join('')}</div><div class="total"><label>TỔNG CHI PHÍ THAM KHẢO</label><strong>${estimateLabel(priceOf(selected))}</strong><small>${count}/8 linh kiện · có thể gồm giá demo</small></div></aside></div>`;
+  }
   const advisorConfig = window.NEON_ADVISOR_CONFIG;
   const advisorSaved = (()=>{try{return JSON.parse(localStorage.getItem('neon-rig-advisor-v11')||'{}')}catch{return {}}})();
   let advisorNeeds = new Set(Array.isArray(advisorSaved.needs)?advisorSaved.needs:[]);
@@ -390,67 +421,20 @@
       ${advisorQuestions(group).map(q=>`<fieldset class="advisor-question"><legend>${esc(q.title)}</legend><div class="advisor-answer-grid">${q.options.map(o=>`<label class="advisor-answer ${advisorSelectedAnswer(q.id,o)?'checked':''}"><input type="checkbox" data-advisor-answer="${q.id}" value="${esc(o)}" ${advisorSelectedAnswer(q.id,o)?'checked':''}><span class="advisor-answer-box">✓</span><span>${esc(o)}</span></label>`).join('')}</div></fieldset>`).join('')}
     </div>`).join('');
   }
+  let advisorFailure='';
+  let advisorProfile=null;
   function advisorSignals(){
-    const g=advisorSelectedGroups();
-    const weight=id=>{const selectedGroup=g.find(x=>x.id===id);if(!selectedGroup)return 0;return {high:2,normal:1,low:.45}[advisorPriorities[id]||'high'];};
-    // Only active questions for currently selected needs may affect recommendations.
-    // Previously, deselected groups could leave hidden answers influencing the build.
-    const answers=g.flatMap(group=>advisorQuestions(group).flatMap(q=>Array.isArray(advisorAnswers[q.id])?advisorAnswers[q.id]:[]));
-    const chosen=new Set(answers);
-    const gpu=1+weight('gaming')*1.2+weight('creative')*.85+weight('engineering')*.65+weight('ai')*1.3+weight('stream')*.35;
-    const cpu=1+weight('dev')*.9+weight('engineering')*.9+weight('server')*1.2+weight('stream')*.75+weight('ai')*.7+weight('creative')*.55;
-    const needsHighRam=advisorHas('gaming-4')||advisorHas('engineering-2')||advisorHas('dev-4')||advisorHas('dev-5')||advisorHas('ai-4')||advisorHas('server-4')||chosen.has('150–300+ mod')||chosen.has('4K')||chosen.has('6K / 8K');
-    return {cpu,gpu,minRam:needsHighRam?32:16,wantStorage:chosen.has('4K')||chosen.has('6K / 8K')||chosen.has('Nhiều lớp hiệu ứng / RAW')||advisorHas('server-1')?2000:1000,chosen};
+    const p=window.DEXORA_ADVISOR_ENGINE.deriveProfile({groups:advisorConfig.groups,needs:advisorNeeds,answers:advisorAnswers,priorities:advisorPriorities});
+    return {cpu:p.cpuWeight,gpu:p.gpuWeight,minRam:p.minRam,wantStorage:p.minStorage,chosen:new Set(p.answers)};
   }
-  // This is a constrained *demonstration* search over products with example
-  // prices, not FPS forecasting or a claim of professional PC validation.
   function advisorGenerateBuilds(){
-    const signal=advisorSignals(),candidates=[];
-    const valid=id=>parts[id].filter(isPriced);
-    const CPUs=valid('cpu'),boards=valid('board'),rams=valid('ram'),gpus=valid('gpu'),ssds=valid('ssd'),coolers=valid('cooler'),cases=valid('case'),psus=valid('psu');
-    const cpuRank={r5:1,i5:2,r7:3},gpuRank={'5060ti':1,'5070':2,'5070ti':3};
-    for(const cpu of CPUs)for(const board of boards){
-      if(cpu.socket!==board.socket)continue;
-      for(const ram of rams){if(ram.ram!==board.ram)continue;
-        for(const gpu of gpus)for(const ssd of ssds)for(const cooler of coolers){
-          if(!cooler.sockets?.includes(cpu.socket)||cooler.cap!=null&&cooler.cap<cpu.watts)continue;
-          for(const cs of cases){
-            if(!cs.forms?.includes(board.form)||cs.maxGpu!=null&&gpu.gpuLength!=null&&gpu.gpuLength>cs.maxGpu||cs.maxRad!=null&&cooler.rad>cs.maxRad||cs.maxAir!=null&&cooler.coolerHeight>cs.maxAir)continue;
-            for(const psu of psus){
-              const items={cpu:cpu.id,board:board.id,ram:ram.id,gpu:gpu.id,ssd:ssd.id,cooler:cooler.id,case:cs.id,psu:psu.id};
-              if(psu.watts<requiredPSU(items))continue;
-              const price=cpu.price+board.price+ram.price+gpu.price+ssd.price+cooler.price+cs.price+psu.price;
-              if(price>budget)continue;
-              const col=colorReview(items);
-              if(colorPolicy==='strict'&&desiredColor()&&(col.mismatch.length||col.unknown.length))continue;
-              const ramGB=ram.capacity||(/32GB/.test(ram.name)?32:16);
-              const storageGB=ssd.capacity||(/2TB/.test(ssd.name)?2000:1000);
-              const raw=signal.cpu*(cpuRank[cpu.id]||1)+signal.gpu*(gpuRank[gpu.id]||1)+ (ramGB>=signal.minRam?1.1:-1.4) + (storageGB>=signal.wantStorage?0.6:0) + (board.ram==='DDR5'?.18:0);
-              const colorPenalty=desiredColor()?col.mismatch.length*.8+col.unknown.length*.18:0;
-              candidates.push({items,price,quality:raw-colorPenalty,ramGB,storageGB,mismatch:col.mismatch.length,unknown:col.unknown.length});
-            }
-          }
-        }
-      }
-    }
-    if(!candidates.length)return [];
-    // Prices must ascend: economical < balanced < high-end.
-    // A pricier part is not automatically a performance improvement; premium
-    // only uses more budget where the metadata yields a meaningful upgrade.
-    const cheapest=[...candidates].sort((a,b)=>a.price-b.price||b.quality-a.quality)[0];
-    const premium=[...candidates].sort((a,b)=>b.quality-a.quality||b.price-a.price)
-      .find(x=>x.price>cheapest.price+2000000) || null;
-    if(!premium)return [cheapest];
-    const lower=cheapest.price+1200000,upper=premium.price-1200000;
-    const midpoint=cheapest.price+(premium.price-cheapest.price)*.53;
-    const middle=[...candidates]
-      .filter(x=>x.price>=lower&&x.price<=upper&&x.quality>=cheapest.quality)
-      .sort((a,b)=>{
-        const as=a.quality*.6-Math.abs(a.price-midpoint)/1000000*.85;
-        const bs=b.quality*.6-Math.abs(b.price-midpoint)/1000000*.85;
-        return bs-as||a.price-b.price;
-      })[0];
-    return middle?[cheapest,middle,premium]:[cheapest,premium];
+    const result=window.DEXORA_ADVISOR_ENGINE.generate({
+      parts,budget,groups:advisorConfig.groups,needs:advisorNeeds,answers:advisorAnswers,priorities:advisorPriorities,
+      chosenColor:desiredColor(),colorPolicy,colorReview
+    });
+    advisorProfile=result.profile;
+    advisorFailure=result.message;
+    return result.builds;
   }
   function advisorTier(index){
     if(advisorProposals.length===1)return {key:'value',label:'01 / THAM KHẢO',title:'SMART VALUE'};
@@ -490,9 +474,10 @@
   }
   function advisorResultsMarkup(){
     if(!advisorGenerated)return '';
-    if(!advisorProposals.length)return `<section class="advisor-results-section" id="advisorGenerated" data-advisor-results><div class="advisor-result-head"><div class="kicker">// ADVISOR OUTPUT</div><h2>Chưa đủ dữ liệu giá để tạo phương án phù hợp</h2><p>Không tìm thấy bộ PC có đủ giá mẫu, tương thích sơ bộ và không vượt ${estimateLabel(budget)}${colorPolicy==='strict'&&desiredColor()?' với yêu cầu bắt buộc đúng màu':''}. Hãy thử ngân sách khác hoặc thay đổi điều kiện. Hệ thống không tự tạo giá cho linh kiện chưa có dữ liệu.</p></div></section>`;
+    if(!advisorProposals.length)return `<section class="advisor-results-section" id="advisorGenerated" data-advisor-results><div class="advisor-result-head"><div class="kicker">// TƯ VẤN THEO NHU CẦU</div><h2>Chưa tìm được cấu hình đáp ứng điều kiện</h2><p>${esc(advisorFailure||'Dữ liệu hoặc ngân sách hiện chưa đủ để tạo phương án phù hợp.')}</p></div></section>`;
     const selectedLabels=advisorConfig.groups.flatMap(g=>g.needs.filter(n=>advisorNeeds.has(n.id)).map(n=>n.label));
     return `<section class="advisor-results-section" id="advisorGenerated" data-advisor-results><div class="advisor-result-head"><div><div class="kicker">// SMART CONSULTATION / RULE-BASED PREVIEW</div><h2>${advisorProposals.length} cấu hình theo câu trả lời của bạn</h2><p>Dựa trên ${advisorNeeds.size} nhu cầu và ${advisorQuestionAnswered()} câu hỏi đã trả lời; ngân sách ${estimateLabel(budget)}. Đây là đề xuất sơ bộ từ các linh kiện <b>có giá demo</b>, chưa phải tối ưu thị trường hoặc benchmark.</p></div><button class="btn ghost" id="advisorEdit">SỬA CÂU TRẢ LỜI</button></div>
+      <div class="advisor-profile-note"><strong>Định hướng lựa chọn: ${esc(advisorProfile?.title||'Nhu cầu đã nhập')}</strong><p>Ưu tiên RAM từ ${advisorProfile?.minRam||16}GB, SSD từ ${Math.round((advisorProfile?.minStorage||1000)/1000)}TB${advisorProfile?.minVram?`, VRAM tối thiểu ${advisorProfile.minVram}GB`:''}. ${esc(advisorProfile?.notes?.slice(0,2).join(' ')||'')} Các ngưỡng này là quy tắc định hướng, không thay thế thử nghiệm thực tế.</p></div>
       <div class="advisor-chosen-pills">${selectedLabels.slice(0,12).map(t=>`<span>${esc(t)}</span>`).join('')}${selectedLabels.length>12?`<span>+${selectedLabels.length-12} mục khác</span>`:''}</div>
       <div class="advisor-motion-top"><span class="motion-status" data-advisor-motion-status>● RÊ CHUỘT HOẶC CHẠM VÀO PHƯƠNG ÁN ĐỂ XEM PHÂN TÍCH</span></div>
       <div class="advisor-results-grid">${advisorProposals.map(advisorResultCard).join('')}</div>
@@ -600,12 +585,53 @@
       <div class="advisor-submit"><div><strong>Đã chọn xong nhu cầu?</strong><p>${count?`${count} nhu cầu được chọn • ${answered}/${total} câu hỏi đã trả lời. Có thể bỏ qua câu hỏi chưa rõ.`:'Chọn ít nhất một nhu cầu để tiếp tục.'}</p></div><div class="advisor-submit-actions"><button class="btn ghost" type="button" id="advisorClear">XÓA CÂU TRẢ LỜI</button><button class="btn primary" type="button" id="advisorGenerate" ${count?'':'disabled'}>XEM 3 CẤU HÌNH PHÙ HỢP ↗</button></div></div></section>
       ${advisorResultsMarkup()}`;
   }
-  const filteredCatalog = () => categories.flatMap(c=>parts[c.id].map(p=>({...p,category:c.short,group:c.id}))).filter(p=>(catalogFilter==='all'||p.group===catalogFilter)&&(p.name+' '+(p.brand||'')+' '+(p.sku||'')+' '+(p.color||'')).toLowerCase().includes(catalogQuery.toLowerCase()));
+  const filteredCatalog = () => categories.flatMap(c=>parts[c.id].map(p=>({...p,category:c.short,group:c.id}))).filter(p=>
+    (catalogFilter==='all'||p.group===catalogFilter) && (catalogBrand==='all'||(p.brand||'').toLowerCase()===catalogBrand) && (catalogColor==='all'||(p.color||'').toLowerCase()===catalogColor) && (!catalogMinPrice||(isPriced(p)&&p.price>=catalogMinPrice)) && (!catalogMaxPrice||(isPriced(p)&&p.price<=catalogMaxPrice)) &&
+    (p.name+' '+(p.brand||'')+' '+(p.sku||'')+' '+p.id+' '+(p.color||'')).toLocaleLowerCase('vi-VN').includes(catalogQuery.toLocaleLowerCase('vi-VN'))
+  ).sort((a,b)=>catalogSort==='name'?a.name.localeCompare(b.name,'vi'):(catalogSort==='price-desc'?(b.price||0)-(a.price||0):(a.price||Infinity)-(b.price||Infinity))||a.name.localeCompare(b.name,'vi'));
   function catalogHTML(){return filteredCatalog().map(p=>`<div class="catalog-item"><div class="category">[ ${esc(p.category)} ]</div><h3>${esc(p.name)}</h3><div class="code">${p.brand?esc(p.brand)+' • ':''}${p.color?esc(colorName[p.color]||p.color)+' • ':''} ID: ${esc(p.id.toUpperCase())}</div><div class="cost">${estimateLabel(p.price)}</div><div class="catalog-estimate">${priceDescriptor(p)}</div>${linkBelowPrice(p)}</div>`).join('')||'<p>Không tìm thấy linh kiện phù hợp.</p>';}
-  function renderCatalog(){return `<section class="section page-alt"><div class="page-intro"><div class="kicker">// GLOBAL COMPONENT LIBRARY</div><h2>Kho linh kiện mở rộng</h2><p>Danh mục hiện có ${catalogCount()} linh kiện/dòng sản phẩm, kể cả mẫu chưa có giá hay link mua. Đây chưa phải toàn bộ SKU trên thế giới. Toàn bộ sản phẩm đều có thể tìm thấy, <strong>không bị ẩn theo tỉnh hay cửa hàng</strong>. Link chỉ hiện khi đúng sản phẩm đã có URL tại cửa hàng chọn.</p></div><div class="catalog-toolbar"><input class="field" id="catalogSearch" placeholder="Tìm model, hãng, màu sắc..." value="${esc(catalogQuery)}"><select id="catalogFilter" class="field" style="max-width:160px"><option value="all">Tất cả</option>${categories.map(c=>`<option value="${c.id}" ${catalogFilter===c.id?'selected':''}>${c.short}</option>`).join('')}</select></div><div id="catalogItems" class="catalog-items">${catalogHTML()}</div></section>`;}
-  function renderCompare(){const presets=activePresets();return `<section class="section page-alt"><div class="page-intro"><div class="kicker">// SO SÁNH CẤU HÌNH</div><h2>So sánh cấu hình đang chọn và 3 phương án tham khảo</h2><p>Giá là ước tính từ nguồn cửa hàng đã xác minh nếu có; linh kiện chưa cập nhật vẫn là giá demo. Đây không phải báo giá chính thức hay dữ liệu FPS đã đo.</p></div>${optionCards()}<div class="compare-table"><table><thead><tr><th>THÀNH PHẦN</th><th>CẤU HÌNH CỦA BẠN</th>${presets.map(p=>`<th>${p.name}</th>`).join('')}</tr></thead><tbody>${categories.map(c=>`<tr><td>${c.short}</td><td>${esc(partOf(c.id).name)}</td>${presets.map(p=>`<td>${esc(partOf(c.id,p.items).name)}</td>`).join('')}</tr>`).join('')}<tr><td><strong>TỔNG GIÁ</strong></td><td><strong>${estimateLabel(priceOf(selected))}</strong></td>${presets.map(p=>`<td><strong>${estimateLabel(priceOf(p.items))}</strong></td>`).join('')}</tr><tr><td>KIỂM TRA DEMO</td><td>${assessment(selected).score}/100</td>${presets.map(p=>`<td>${assessment(p.items).score}/100</td>`).join('')}</tr></tbody></table></div><div class="section-foot"><div class="footnote">Socket, RAM, tải nguồn, kích thước minh họa; chưa xác minh BIOS, đầu cấp nguồn và kích thước phiên bản thực tế.</div><button class="btn primary" id="exportBtn">XUẤT JSON ↓</button></div></section>`;}
-  function setPage(next){comparisonKey=null;comparisonLocked=false;clearTimeout(comparisonExitTimer);page=next;document.querySelectorAll('#nav [data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));document.getElementById('breadcrumb').textContent={build:'TỰ BUILD',advisor:'TƯ VẤN',catalog:'KHO LINH KIỆN',compare:'SO SÁNH',stores:'CỬA HÀNG'}[page];render();}
-  function render(){renderMetrics();renderRegionToolbar();showPriceSync();document.getElementById('pageView').innerHTML=({build:renderBuild,advisor:renderAdvisor,catalog:renderCatalog,compare:renderCompare,stores:renderStores})[page]();bindPageEvents();}
+  function renderCatalog(){return `<section class="section page-alt"><div class="page-intro"><div class="kicker">// GLOBAL COMPONENT LIBRARY</div><h2>Kho linh kiện mở rộng</h2><p>Danh mục hiện có ${catalogCount()} linh kiện/dòng sản phẩm, kể cả mẫu chưa có giá hay link mua. Đây chưa phải toàn bộ SKU trên thế giới. Toàn bộ sản phẩm đều có thể tìm thấy, <strong>không bị ẩn theo tỉnh hay cửa hàng</strong>. Link chỉ hiện khi đúng sản phẩm đã có URL tại cửa hàng chọn.</p></div><div class="catalog-toolbar"><input class="field" id="catalogSearch" placeholder="Tìm model, hãng, màu sắc..." value="${esc(catalogQuery)}"><select id="catalogFilter" class="field" style="max-width:160px"><option value="all">Tất cả</option>${categories.map(c=>`<option value="${c.id}" ${catalogFilter===c.id?'selected':''}>${c.short}</option>`).join('')}</select><select id="catalogBrand" class="field"><option value="all">Mọi hãng</option>${[...new Set(categories.flatMap(c=>parts[c.id]).map(p=>(p.brand||'').trim()).filter(Boolean))].sort().map(b=>`<option value="${esc(b.toLowerCase())}" ${catalogBrand===b.toLowerCase()?'selected':''}>${esc(b)}</option>`).join('')}</select><select id="catalogColor" class="field"><option value="all">Mọi màu</option><option value="white" ${catalogColor==='white'?'selected':''}>Trắng</option><option value="black" ${catalogColor==='black'?'selected':''}>Đen</option></select><input id="catalogMinPrice" class="field" type="number" inputmode="numeric" min="0" step="100000" placeholder="Giá từ (VNĐ)" value="${catalogMinPrice||''}"><input id="catalogMaxPrice" class="field" type="number" inputmode="numeric" min="0" step="100000" placeholder="Giá đến (VNĐ)" value="${catalogMaxPrice||''}"><select id="catalogSort" class="field"><option value="price-asc">Giá thấp trước</option><option value="price-desc" ${catalogSort==='price-desc'?'selected':''}>Giá cao trước</option><option value="name" ${catalogSort==='name'?'selected':''}>Theo tên</option></select></div><div id="catalogItems" class="catalog-items">${catalogHTML()}</div></section>`;}
+  // Comparison workspace is independent from Builder: choose the draft, saved builds or examples.
+  let compareSaved=[],compareLeft='current',compareRight='preset:balance';
+  const compareChoices=()=>[
+    {key:'current',label:'Cấu hình đang chọn',items:selected},
+    ...activePresets().map(p=>({key:'preset:'+p.key,label:'Tham khảo: '+p.name,items:p.items})),
+    ...compareSaved.map(b=>({key:'saved:'+b.id,label:'Đã lưu: '+b.name,items:b.selected}))
+  ];
+  function compareTableMarkup(){
+    const options=compareChoices(),a=options.find(x=>x.key===compareLeft)||options[0],b=options.find(x=>x.key===compareRight)||options[1];
+    const rows=categories.map(c=>`<tr><th scope="row">${esc(c.short)}</th><td>${a.items[c.id]?esc(partOf(c.id,a.items).name):'— Chưa chọn —'}</td><td>${b.items[c.id]?esc(partOf(c.id,b.items).name):'— Chưa chọn —'}</td></tr>`).join('');
+    const check=items=>{const count=selectedCount(items),data=assessment(items);return count<categories.length?`Thiếu ${categories.length-count}/8 mục`:data.errors?`${data.errors} xung đột sơ bộ`:data.pending?`${data.pending} điểm chưa xác minh`:'Không phát hiện xung đột trong dữ liệu hiện có'};
+    const pa=priceOf(a.items),pb=priceOf(b.items),diff=pa!=null&&pb!=null&&selectedCount(a.items)===8&&selectedCount(b.items)===8?pb-pa:null;
+    return `<div class="compare-table"><table><thead><tr><th scope="col">THÀNH PHẦN</th><th scope="col">${esc(a.label)}</th><th scope="col">${esc(b.label)}</th></tr></thead><tbody>${rows}<tr><th scope="row">GIÁ THAM KHẢO</th><td><strong>${estimateLabel(pa)}</strong></td><td><strong>${estimateLabel(pb)}</strong></td></tr><tr><th scope="row">KIỂM TRA SƠ BỘ</th><td>${esc(check(a.items))}</td><td>${esc(check(b.items))}</td></tr></tbody></table></div><p class="compare-footnote">${diff===null?'Cần cấu hình đầy đủ và có giá cho mọi linh kiện để tính chênh lệch.':`Chênh lệch bên phải so với bên trái: <b>${diff>0?'+':''}${esc(fmt(diff))}</b>.`} Giá có thể gồm dữ liệu demo, không phải báo giá hoặc FPS đo thực tế. Chưa xác nhận hoàn toàn BIOS, PSU và kích thước theo mã phiên bản.</p>`;
+  }
+  const compareOptionsMarkup=(value)=>compareChoices().map(x=>`<option value="${esc(x.key)}" ${x.key===value?'selected':''}>${esc(x.label)}</option>`).join('');
+  function renderCompare(){return `<section class="section page-alt"><div class="page-intro"><div class="kicker">// DEXORA / COMPARISON LAB</div><h2>So sánh linh kiện và cấu hình độc lập</h2><p>Chọn hai cấu hình, gồm bản build đang tạo, cấu hình đã lưu trên thiết bị hoặc phương án tham khảo. Tính năng này hoạt động độc lập với menu Tự build.</p></div><div class="dx-compare-pickers"><label>PHƯƠNG ÁN A<select data-compare-select="left" class="field">${compareOptionsMarkup(compareLeft)}</select></label><span aria-hidden="true">VS</span><label>PHƯƠNG ÁN B<select data-compare-select="right" class="field">${compareOptionsMarkup(compareRight)}</select></label></div><div id="compareTable">${compareTableMarkup()}</div><div class="section-foot"><div class="footnote">Muốn so sánh 2 cấu hình của mình, hãy lưu từng cấu hình trong Tự build rồi quay lại đây chọn tên tương ứng.</div><a class="btn primary" href="./builder.html">ĐẾN TỰ BUILD ↗</a></div></section>`;}
+  async function refreshCompareSaved(){
+    try{compareSaved=await window.DEXORA_BUILDS.list()}catch{compareSaved=[]}
+    if(page!=='compare')return;
+    for(const side of ['left','right']){
+      const el=document.querySelector(`[data-compare-select="${side}"]`);if(!el)continue;
+      const value=side==='left'?compareLeft:compareRight;
+      el.innerHTML=compareOptionsMarkup(value);
+    }
+    const table=document.getElementById('compareTable');if(table)table.innerHTML=compareTableMarkup();
+  }
+
+  function setPage(next){
+    if(!['build','advisor','catalog','compare','stores'].includes(next))return;
+    persistDraft();
+    if(next!==page){window.location.href='./'+(next==='build'?'builder':next)+'.html';return;}
+    comparisonKey=null;comparisonLocked=false;clearTimeout(comparisonExitTimer);
+    render();
+  }
+  function render(){
+    const breadcrumb=document.getElementById('breadcrumb');if(breadcrumb)breadcrumb.textContent={build:'TỰ BUILD',advisor:'TƯ VẤN',catalog:'KHO LINH KIỆN',compare:'SO SÁNH',stores:'CỬA HÀNG'}[page];
+    renderMetrics();renderRegionToolbar();showPriceSync();
+    const target=document.getElementById('pageView');if(!target)return;
+    target.innerHTML=({build:renderBuild,advisor:renderAdvisor,catalog:renderCatalog,compare:renderCompare,stores:renderStores})[page]();
+    bindPageEvents();if(page==='build')renderSavedBuilds();if(page==='compare')refreshCompareSaved();
+  }
   function bindPageEvents(){
     document.querySelectorAll('[data-color-mode]').forEach(btn=>btn.addEventListener('click',()=>{
       colorMode=btn.dataset.colorMode;advisorGenerated=false;render();showToast('Đã chọn '+colorNames[colorMode]+'. Kho linh kiện không bị giới hạn.');
@@ -623,16 +649,16 @@
       const choices=sortedColorChoices(category,compatibleOptions(category,selected));
       const matches=choices.filter(p=>(p.name+' '+(p.brand||'')+' '+(p.color||'')).toLocaleLowerCase('vi-VN').includes(needle));
       const current=choices.find(p=>p.id===value);
-      const shown=current&&!matches.some(p=>p.id===value)?[current,...matches]:matches;
-      select.replaceChildren(...shown.map(p=>new Option(p.name+(desiredColor()&&visibleColorCategories.includes(category)?' • '+colorText(category,p):''),p.id,p.id===value,p.id===value)));
+      const shown=current?.id&&!matches.some(p=>p.id===value)?[current,...matches]:matches;
+      select.replaceChildren(new Option('— Chọn linh kiện —','',!value,!value),...shown.map(p=>new Option(p.name,p.id,p.id===value,p.id===value)));
       if(!shown.length){select.add(new Option('Không tìm thấy phù hợp',''));select.disabled=true;}else select.disabled=false;
     }));
-    document.querySelectorAll('[data-part]').forEach(el=>el.addEventListener('change',()=>{const key=el.dataset.part;const next={...selected,[key]:el.value};const result=normalize(next);selected=result.items;render();if(result.changes.length)showToast('Đã tự đổi '+result.changes.map(x=>x.toUpperCase()).join(', ')+' sang lựa chọn phù hợp');}));
+    document.querySelectorAll('[data-part]').forEach(el=>el.addEventListener('change',()=>{const key=el.dataset.part;const next={...selected,[key]:el.value};const result=normalize(next);if(key==='cpu'&&!result.items.board)result.items.ram='';if(key==='board'&&!result.items.board)result.items.ram='';selected=result.items;persistDraft();render();if(result.changes.length)showToast('Đã bỏ chọn các mục không còn tương thích: '+result.changes.map(x=>x.toUpperCase()).join(', '));}));
     document.querySelectorAll('.option > [data-apply]').forEach(el=>el.addEventListener('click',()=>applyPreset(el.dataset.apply)));
     bindComparisonEvents();
     bindAdvisorComparison();
     document.getElementById('saveBtn')?.addEventListener('click',save);
-    document.getElementById('resetBtn')?.addEventListener('click',()=>{selected=normalize(initial).items;render();showToast('Đã khôi phục cấu hình mẫu');});
+    document.getElementById('resetBtn')?.addEventListener('click',()=>{selected={...initial};persistDraft();render();showToast('Đã xóa toàn bộ lựa chọn');});
     document.querySelectorAll('[data-budget-input]').forEach(el=>{
       el.addEventListener('input',()=>{
         const next=parseBudgetInput(el.value);
@@ -670,14 +696,38 @@
     });
     document.getElementById('advisorEdit')?.addEventListener('click',()=>document.querySelector('.advisor-questions-head')?.scrollIntoView({behavior:'smooth',block:'start'}));
     document.querySelectorAll('[data-advisor-apply]').forEach(el=>el.addEventListener('click',()=>applyAdvisorProposal(Number(el.dataset.advisorApply))));
+    document.querySelectorAll('[data-compare-select]').forEach(el=>el.addEventListener('change',()=>{
+      if(el.dataset.compareSelect==='left')compareLeft=el.value;else compareRight=el.value;
+      const table=document.getElementById('compareTable');if(table)table.innerHTML=compareTableMarkup();
+    }));
     document.getElementById('catalogSearch')?.addEventListener('input',e=>{catalogQuery=e.target.value;document.getElementById('catalogItems').innerHTML=catalogHTML();});
     document.getElementById('catalogFilter')?.addEventListener('change',e=>{catalogFilter=e.target.value;render();});
-    document.getElementById('exportBtn')?.addEventListener('click',()=>{const payload={demo:priceRecords.size<categories.reduce((n,c)=>n+parts[c.id].length,0),priceVerified:priceRecords.size>0,verifiedProductCount:priceRecords.size,lastPriceSync,regionId,storeId,colorMode,colorPolicy,currency:'VND',budget,estimatedTotal:priceOf(selected),items:Object.fromEntries(categories.map(c=>[c.id,partOf(c.id)])),checks:assessment().messages};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='neonrig-build.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('Đã xuất JSON');});
+    document.getElementById('catalogBrand')?.addEventListener('change',e=>{catalogBrand=e.target.value;render();});
+    document.getElementById('catalogColor')?.addEventListener('change',e=>{catalogColor=e.target.value;render();});
+    document.getElementById('catalogSort')?.addEventListener('change',e=>{catalogSort=e.target.value;render();});
+    for(const [id,side] of [['catalogMinPrice','min'],['catalogMaxPrice','max']])document.getElementById(id)?.addEventListener('change',e=>{
+      const amount=Math.max(0,Math.min(250000000,Number(e.target.value)||0));
+      if(side==='min')catalogMinPrice=amount;else catalogMaxPrice=amount;
+      render();
+    });
+    document.getElementById('exportCurrentBtn')?.addEventListener('click',()=>window.DEXORA_BUILDS.exportJSON({name:'DEXORA Build',selected,budget,colorMode,createdAt:new Date().toISOString()}));
+    document.getElementById('shareBtn')?.addEventListener('click',async()=>{
+      if(!selectedCount(selected)){showToast('Chưa có linh kiện để chia sẻ');return;}
+      const link=window.DEXORA_BUILDS.makeShareLink({selected,budget,colorMode});
+      try{await navigator.clipboard.writeText(link);showToast('Đã sao chép link cấu hình')}catch{prompt('Sao chép link chia sẻ:',link)}
+    });
+    document.getElementById('importBuildFile')?.addEventListener('change',async e=>{
+      const f=e.target.files?.[0];if(!f)return;
+      try{const data=await window.DEXORA_BUILDS.importJSON(f);selected=normalize(data.selected).items;budget=data.budget||budget;colorMode=data.colorMode||'any';persistDraft();render();showToast('Đã nhập cấu hình')}
+      catch(err){showToast('File JSON không đúng định dạng DEXORA')}
+    });
+    document.getElementById('exportBtn')?.addEventListener('click',()=>{const payload={demo:priceRecords.size<categories.reduce((n,c)=>n+parts[c.id].length,0),priceVerified:priceRecords.size>0,verifiedProductCount:priceRecords.size,lastPriceSync,regionId,storeId,colorMode,colorPolicy,currency:'VND',budget,estimatedTotal:priceOf(selected),items:Object.fromEntries(categories.map(c=>[c.id,partOf(c.id)])),checks:assessment().messages};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='DEXORA-build.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('Đã xuất JSON');});
   }
-  document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.page)));
+  document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();setPage(b.dataset.page)}));
   document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{setPage(b.dataset.go);document.getElementById('pageView').scrollIntoView({behavior:'smooth',block:'start'});}));
-  document.getElementById('homeLink').addEventListener('click',e=>{e.preventDefault();if(typeof window.NEON_SHOW_HOME==='function'){window.NEON_SHOW_HOME();return;}setPage('build');window.scrollTo({top:0,behavior:'smooth'});});
+  // Logo is visual branding; the explicit Trang chủ control handles navigation.
   window.NEON_SET_PC_PAGE=setPage;
+  try{const shared=window.DEXORA_BUILDS.readShareLink();if(shared){selected=normalize(shared.selected).items;budget=shared.budget||budget;colorMode=shared.colorMode||'any';}}catch{}
   render();
   syncShopPrices();
 })();
